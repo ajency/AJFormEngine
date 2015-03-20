@@ -1,0 +1,26 @@
+{
+  "name": "AJFormEngine",
+  "version": "0.2.0",
+  "authors": [
+    "Naizy <naizy@ajency.in>"
+  ],
+  "description": "Generate html form from JSON data",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.1",
+    "magicsuggest": "~2.1.4",
+    "underscore.string": "~3.0.3",
+    "pickadate": "~3.5.5",
+    "backbone.syphon": "~0.5.1",
+    "parsleyjs": "~2.0.7",
+    "wysihtml5": "~0.3.0",
+    "bootstrap-wysihtml5": "*"
+  },
+  "resolutions": {
+    "backbone.syphon": "~0.5.1"
+  }
+}
