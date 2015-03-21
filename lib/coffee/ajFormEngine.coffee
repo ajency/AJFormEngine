@@ -30,7 +30,7 @@ jQuery(document).ready ($)->
 		form
 	
 	#secondary_id is used incase of repeatable sections. gives the section a common index
-	ajForm.generateFields=(fields, columns, secondaryName = false)->
+	ajForm.generateFields=(fields, columns, secondaryName =false)->
 		form = ''
 		col=0
 		_.each fields, (field,name)->
@@ -45,7 +45,7 @@ jQuery(document).ready ($)->
 				if field.type is 'html_section'
 					form += ajForm.get_html_section field, name
 				else
-					form += ajForm.get_section field, name, columns 
+					form += ajForm.get_section field, name, columns,secondaryName
 
 			else
 				#start new row if column count is 0
@@ -78,11 +78,12 @@ jQuery(document).ready ($)->
 				else col++
 		form
 	
-	ajForm.get_section=(section,sectionName, columns)->
+	ajForm.get_section=(section,sectionName, columns,secondaryName=false)->
 		section.label= s.titleize s.humanize sectionName if not section.label
 		
 		columns = section.columns if section.columns
-		secondaryName = "#{sectionName}[#{ajForm.makeid()}]" if section.type is 'repeatable_section'
+		secondaryName = if secondaryName then "#{secondaryName}[#{sectionName}]" else sectionName
+		secondaryName += "[#{ajForm.makeid()}]" if section.type is 'repeatable_section'
 		
 		hideElement = if section.conditionals then ' style="display:none" ' else ''
 		
@@ -228,7 +229,8 @@ jQuery(document).ready ($)->
 		divs= element.find '.magicsuggest'
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
-			item= ajForm.options.fields[fieldName]
+			
+			item= ajForm.getFormOptionItem fieldName
 			
 			if item.optionsUrl then items = item.optionsUrl
 			else items=_.map item.options, (opt)->
@@ -330,5 +332,19 @@ jQuery(document).ready ($)->
 		element = $(ajForm.formElement).find "input[name='#{name}']"
 		element = $(ajForm.formElement).find "select[name='#{name}']" if element.length is 0
 		element
+	
+	#get the option item from intialization options
+	ajForm.getFormOptionItem=(name)->
+	
+		if s.contains name, '['
+			fieldPathArr = name.split '['
+			item = ajForm.options
+			_.each fieldPathArr, (pathItem,index)->
+				pathItem=s.replaceAll pathItem,']',''
+				item = item.fields[pathItem] if item.fields[pathItem]?
+		else
+			item= ajForm.options.fields[name]
+			
+		item
 
 		

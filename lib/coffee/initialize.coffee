@@ -80,6 +80,9 @@ jQuery(document).ready ($)->
 					business_name	: type	: 'textbox'
 					email			: type	: 'textbox',validation: type: 'email'
 					phone			: type	: 'textbox'
+					status: 
+						type	: 'autosuggest'
+						options	: ['active1','suspended1']
 					partner	:
 						type : 'repeatable_section'
 						fields:
@@ -88,6 +91,9 @@ jQuery(document).ready ($)->
 							business_name	: type	: 'textbox'
 							email			: type	: 'textbox',validation: type: 'email'
 							phone			: type	: 'textbox'
+							status: 
+								type	: 'autosuggest'
+								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
 
 			sole_trader:
 				columns: 3
