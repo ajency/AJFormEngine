@@ -152,18 +152,18 @@ jQuery(document).ready ($)->
 	ajForm.get_dropdown=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = '<select '+ajForm.validations(field.validation)+'  name="'+name+'" class="form-control">'
-		_.each field.options, (opt)=>
-			opt = ajForm.formatOptions opt
-			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
+		_.each field.options, (option)=>
+			opt = ajForm.formatOptions option
+			html += '<option value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>'+opt.label+'</option>'
 		html += '</select>'
 
 	ajForm.get_radio=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = ''
-		_.each field.options, (opt)->
-			opt = ajForm.formatOptions opt
+		_.each field.options, (option)->
+			opt = ajForm.formatOptions option
 			html += '<label class="radio-inline m-l-20">
-					<input '+ajForm.validations(field.validation)+' type="radio" name="'+name+'" value="'+opt.value+'">
+					<input '+ajForm.validations(field.validation)+' type="radio" name="'+name+'" value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>
 					<span class="lbl padding-8">'+opt.label+'</span>
 				</label>'
 		html
@@ -171,10 +171,10 @@ jQuery(document).ready ($)->
 	ajForm.get_checkbox=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = ''
-		_.each field.options, (opt)->
-			opt = ajForm.formatOptions opt
+		_.each field.options, (option)->
+			opt = ajForm.formatOptions option
 			html += '<label class="radio-inline m-l-20">
-					<input '+ajForm.validations(field.validation)+' type="checkbox" name="'+name+'" value="'+opt.value+'">
+					<input '+ajForm.validations(field.validation)+' type="checkbox" name="'+name+'" value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>
 					<span class="lbl padding-8">'+opt.label+'</span>
 				</label>'
 		html
@@ -216,6 +216,13 @@ jQuery(document).ready ($)->
 			value 	= s.underscored opt
 			opt = {label: label, value: value}
 		opt
+
+	ajForm.preSelected = (field, option)->
+		if _.has(field, 'default')
+			if field.default is option
+				if field.type is 'dropdown' then 'selected' else 'checked'
+			else ''
+		else ''
 		
 	ajForm.addDatePicker=(element)->
 		dateElements = element.find 'input[type="date"]'

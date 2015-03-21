@@ -6,7 +6,8 @@ jQuery(document).ready ($)->
 		fields:					
 			role: 
 				type	: 'dropdown'
-				options	: ['lead']
+				options	: ['lead', 'user']
+				default: 'user'
 				validation: required: true
 
 			dob:
@@ -48,6 +49,12 @@ jQuery(document).ready ($)->
 			gender:
 				type	: 'radio'
 				options : ['male','female']
+				default: 'female'
+
+			mood:
+				type: 'checkbox'
+				options: ['happy', 'sad', 'angry']
+				default: 'angry'
 
 			business_type:
 				type	: 'dropdown'
