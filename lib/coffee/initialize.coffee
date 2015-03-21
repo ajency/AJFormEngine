@@ -1,4 +1,5 @@
 jQuery(document).ready ($)->
+	
 	formbuilderOptions = 
 		columns : 2
 		fields:					
@@ -27,11 +28,19 @@ jQuery(document).ready ($)->
 			status: 
 				type	: 'dropdown'
 				options	: ['active','suspended']
-
+				
 			primary_advisor: 
 				type	: 'autosuggest'
 				validation: required: true
 				options : ['Network Manager','Firm Principal','Firm Management','Network Firm','Simply Firm','Phoenix','Network Manager2']
+
+			cities: 
+				type	: 'autosuggest'
+				optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+				
+			gender:
+				type	: 'radio'
+				options : ['male','female']
 
 			business_type:
 				type	: 'dropdown'
@@ -117,4 +126,8 @@ jQuery(document).ready ($)->
 							email		: type	: 'textbox', validation: type: 'email'
 							phone		: type	: 'textbox'
 
+				
+			additional_info: 
+				type	: 'richtext'
+				
 	$.AJFormEngine $('.form-div'), formbuilderOptions	
