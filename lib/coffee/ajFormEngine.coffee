@@ -329,3 +329,5 @@ jQuery(document).ready ($)->
 		element = $(ajForm.formElement).find "input[name='#{name}']"
 		element = $(ajForm.formElement).find "select[name='#{name}']" if element.length is 0
 		element
+
+		

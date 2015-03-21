@@ -1,4 +1,5 @@
 jQuery(document).ready ($)->
+	
 	formbuilderOptions = 
 		columns : 2
 		fields:					
@@ -133,4 +134,5 @@ jQuery(document).ready ($)->
 					referral_name	: type	: 'textbox'
 					type			: type	: 'textbox'
 
-	$.AJFormEngine $('.form-div'), formbuilderOptions	
+	$.AJFormEngine $('.form-div'), formbuilderOptions
+

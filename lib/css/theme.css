@@ -1,7 +1,7 @@
-@import "../css/plugins/responsive-tabs/easy-responsive-tabs.css";
-@import "../css/plugins/wysiwyg/bootstrap-wysihtml5.css";
-@import "../css/plugins/BootSideMenu/BootSideMenu.css";
-@import "../bower_components/magicsuggest/magicsuggest-min.css";
+/*@import "../css/plugins/responsive-tabs/easy-responsive-tabs.css";*/
+/*@import "../css/plugins/wysiwyg/bootstrap-wysihtml5.css";*/
+/*@import "../css/plugins/BootSideMenu/BootSideMenu.css";*/
+@import "../../bower_components/magicsuggest/magicsuggest-min.css";
 /**** CSS Files ****/
 /* Responsive Tabs */
 /* WYSIWYG Editor */
