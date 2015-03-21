@@ -7,7 +7,7 @@ jQuery(document).ready ($)->
 	ajForm = {}
 	
 	$.AJFormEngine =(element, opts)->
-	
+		
 		ajForm.options = opts
 		form = '<form>'
 		form += ajForm.generateFields opts.fields, opts.columns
@@ -218,19 +218,27 @@ jQuery(document).ready ($)->
 		opt
 		
 	ajForm.addDatePicker=(element)->
-		element.find 'input[type="date"]'
-		.pickadate 
-			'container'		: 'body'
-			'selectYears'	: true
-			'selectMonths'	: true
-			'formatSubmit' 	: 'yyyy-mm-dd'
+		dateElements = element.find 'input[type="date"]'
+		_.each dateElements, (el)->
+			dateObj = ajForm.getFieldOption el.name
+			min = max = undefined
+			if _.has(dateObj, 'min')
+				min = if dateObj.min is 'today' then new Date() else new Date(dateObj.min)
+			if _.has(dateObj, 'max') 
+				max = if dateObj.max is 'today'then new Date() else new Date(dateObj.max)
+			$(el).pickadate 
+				'container'		: 'body'
+				'selectYears'	: true
+				'selectMonths'	: true
+				'formatSubmit' 	: 'yyyy-mm-dd'
+				'min'           : min
+				'max'           : max
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
-			
-			item= ajForm.getFormOptionItem fieldName
+			item= ajForm.getFieldOption fieldName
 			
 			if item.optionsUrl then items = item.optionsUrl
 			else items=_.map item.options, (opt)->
@@ -334,7 +342,7 @@ jQuery(document).ready ($)->
 		element
 	
 	#get the option item from intialization options
-	ajForm.getFormOptionItem=(name)->
+	ajForm.getFieldOption=(name)->
 	
 		if s.contains name, '['
 			fieldPathArr = name.split '['
@@ -346,5 +354,7 @@ jQuery(document).ready ($)->
 			item= ajForm.options.fields[name]
 			
 		item
+
+
 
 		

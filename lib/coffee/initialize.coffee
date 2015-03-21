@@ -8,7 +8,13 @@ jQuery(document).ready ($)->
 				options	: ['lead']
 				validation: required: true
 
-			text1: 
+			dob:
+				type: 'date'
+				label: 'date of birth'
+				min: '2015/03/05'
+				max: 'today'
+
+			text13434: 
 				type	: 'textbox'
 				validation: required: true
 
@@ -26,7 +32,7 @@ jQuery(document).ready ($)->
 							value	: 'active'
 
 			status: 
-				type	: 'dropdown'
+				type	: 'autosuggest'
 				options	: ['active','suspended']
 				
 			primary_advisor: 
@@ -55,10 +61,10 @@ jQuery(document).ready ($)->
 						business_type: 
 							operator: '='
 							value	: 'pvt_individual'
+
 				fields:
 					first_name	: type	: 'textbox'
 					last_name	:  type	: 'textbox'
-
 					email		: 
 						type	: 'textbox'
 						validation: type: 'email'
@@ -94,6 +100,13 @@ jQuery(document).ready ($)->
 							status: 
 								type	: 'autosuggest'
 								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+#					start_date: 
+#						type  : 'date'
+#						min: '2015/03/10'
+#						max: '2015/03/20'
+#					places: 
+#						type	: 'autosuggest'
+#						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 
 			sole_trader:
 				columns: 3
