@@ -220,6 +220,7 @@ jQuery(document).ready ($)->
 		dateElements = element.find 'input[type="date"]'
 		_.each dateElements, (el)->
 			dateObj = ajForm.getFieldOption el.name
+			console.log dateObj
 			min = max = undefined
 			if _.has(dateObj, 'min')
 				min = if dateObj.min is 'today' then new Date() else new Date(dateObj.min)
@@ -237,8 +238,8 @@ jQuery(document).ready ($)->
 		divs= element.find '.magicsuggest'
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
-			# item= ajForm.options.fields[fieldName]
-			item = ajForm.getFieldOption fieldName
+			item= ajForm.options.fields[fieldName]
+			# item = ajForm.getFieldOption fieldName
 			
 			if item.optionsUrl then items = item.optionsUrl
 			else items=_.map item.options, (opt)->

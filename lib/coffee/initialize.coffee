@@ -98,9 +98,9 @@ jQuery(document).ready ($)->
 						type  : 'date'
 						min: '2015/03/10'
 						max: '2015/03/20'
-					places: 
-						type	: 'autosuggest'
-						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+					# places: 
+					# 	type	: 'autosuggest'
+					# 	optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 
 			sole_trader:
 				columns: 3
