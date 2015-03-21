@@ -8,6 +8,17 @@ jQuery(document).ready ($)->
 				options	: ['lead']
 				validation: required: true
 
+			joining_date:
+				type: 'date'
+				min: ''
+				max: ''
+
+			dob:
+				type: 'date'
+				label: 'date of birth'
+				min: ''
+				max: ''
+
 			text1: 
 				type	: 'textbox'
 

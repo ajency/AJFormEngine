@@ -217,12 +217,17 @@ jQuery(document).ready ($)->
 		opt
 		
 	ajForm.addDatePicker=(element)->
-		element.find 'input[type="date"]'
-		.pickadate 
-			'container'		: 'body'
-			'selectYears'	: true
-			'selectMonths'	: true
-			'formatSubmit' 	: 'yyyy-mm-dd'
+		console.log ajForm.options
+
+		dateElements = element.find 'input[type="date"]'
+		_.each dateElements, (el)->
+			# console.log el
+			# console.log ajForm.options.fields[el.name]
+			$(el).pickadate 
+				'container'		: 'body'
+				'selectYears'	: true
+				'selectMonths'	: true
+				'formatSubmit' 	: 'yyyy-mm-dd'
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
