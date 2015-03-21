@@ -230,7 +230,8 @@ jQuery(document).ready ($)->
 			fieldName = $(el).attr 'data-id'
 			item= ajForm.options.fields[fieldName]
 			
-			items=_.map item.options, (opt)->
+			if item.optionsUrl then items = item.optionsUrl
+			else items=_.map item.options, (opt)->
 					opt= ajForm.formatOptions opt
 					data= id: opt.value, name: opt.label
 					

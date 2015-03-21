@@ -32,6 +32,10 @@ jQuery(document).ready ($)->
 				type	: 'autosuggest'
 				options : ['Network Manager','Firm Principal','Firm Management','Network Firm','Simply Firm','Phoenix','Network Manager2']
 
+			cities: 
+				type	: 'autosuggest'
+				optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+
 			business_type:
 				type	: 'dropdown'
 				options : ['pvt_individual','partnership','sole_trader','plc']
