@@ -21,6 +21,7 @@ jQuery(document).ready ($)->
 
 			text1: 
 				type	: 'textbox'
+				validation: required: true
 
 			text2: 
 				type	: 'textbox'
@@ -30,22 +31,27 @@ jQuery(document).ready ($)->
 					conditions: 
 						text1: 
 							operator: 'like'
-							value	: 'test'
+							value	: 'one'
 						status: 
 							operator: '='
-							value	: 'suspended'
+							value	: 'active'
 
 			status: 
 				type	: 'dropdown'
 				options	: ['active','suspended']
-
+				
 			primary_advisor: 
 				type	: 'autosuggest'
+				validation: required: true
 				options : ['Network Manager','Firm Principal','Firm Management','Network Firm','Simply Firm','Phoenix','Network Manager2']
 
 			cities: 
 				type	: 'autosuggest'
 				optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+				
+			gender:
+				type	: 'radio'
+				options : ['male','female']
 
 			business_type:
 				type	: 'dropdown'
@@ -79,9 +85,6 @@ jQuery(document).ready ($)->
 						business_type: 
 							operator: '='
 							value	: 'partnership'
-						status: 
-							operator: '='
-							value	: 'active'
 				fields:
 					first_name		: type	: 'textbox'
 					last_name		: type	: 'textbox'
@@ -134,20 +137,8 @@ jQuery(document).ready ($)->
 							email		: type	: 'textbox', validation: type: 'email'
 							phone		: type	: 'textbox'
 
-			lead_info:
-				type: 'section',
-				columns: 3
-				fields:
-					recieved_date	: type	: 'date'
-					lead_status		: type	: 'textbox'
-					lead_source		: type	: 'textbox'
-
-			referral:
-				type: 'section',
-				columns: 3
-				fields:
-					referral_name	: type	: 'textbox'
-					type			: type	: 'textbox'
-
-	$.AJFormEngine $('.form-div'), formbuilderOptions
-
+				
+			additional_info: 
+				type	: 'richtext'
+				
+	$.AJFormEngine $('.form-div'), formbuilderOptions	
