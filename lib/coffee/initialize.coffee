@@ -8,16 +8,11 @@ jQuery(document).ready ($)->
 				options	: ['lead']
 				validation: required: true
 
-			joining_date:
-				type: 'date'
-				min: ''
-				max: ''
-
 			dob:
 				type: 'date'
 				label: 'date of birth'
-				min: ''
-				max: ''
+				min: '2015/03/05'
+				max: 'today'
 
 			text1: 
 				type	: 'textbox'
@@ -66,10 +61,10 @@ jQuery(document).ready ($)->
 						business_type: 
 							operator: '='
 							value	: 'pvt_individual'
+
 				fields:
 					first_name	: type	: 'textbox'
 					last_name	:  type	: 'textbox'
-
 					email		: 
 						type	: 'textbox'
 						validation: type: 'email'
@@ -99,6 +94,13 @@ jQuery(document).ready ($)->
 							business_name	: type	: 'textbox'
 							email			: type	: 'textbox',validation: type: 'email'
 							phone			: type	: 'textbox'
+					start_date: 
+						type  : 'date'
+						min: '2015/03/10'
+						max: '2015/03/20'
+					places: 
+						type	: 'autosuggest'
+						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 
 			sole_trader:
 				columns: 3

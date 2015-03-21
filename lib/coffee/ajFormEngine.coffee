@@ -7,7 +7,7 @@ jQuery(document).ready ($)->
 	ajForm = {}
 	
 	$.AJFormEngine =(element, opts)->
-	
+		
 		ajForm.options = opts
 		form = '<form>'
 		form += ajForm.generateFields opts.fields, opts.columns
@@ -217,23 +217,28 @@ jQuery(document).ready ($)->
 		opt
 		
 	ajForm.addDatePicker=(element)->
-		console.log ajForm.options
-
 		dateElements = element.find 'input[type="date"]'
 		_.each dateElements, (el)->
-			# console.log el
-			# console.log ajForm.options.fields[el.name]
+			dateObj = ajForm.getFieldOption el.name
+			min = max = undefined
+			if _.has(dateObj, 'min')
+				min = if dateObj.min is 'today' then new Date() else new Date(dateObj.min)
+			if _.has(dateObj, 'max') 
+				max = if dateObj.max is 'today'then new Date() else new Date(dateObj.max)
 			$(el).pickadate 
 				'container'		: 'body'
 				'selectYears'	: true
 				'selectMonths'	: true
 				'formatSubmit' 	: 'yyyy-mm-dd'
+				'min'           : min
+				'max'           : max
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
-			item= ajForm.options.fields[fieldName]
+			# item= ajForm.options.fields[fieldName]
+			item = ajForm.getFieldOption fieldName
 			
 			if item.optionsUrl then items = item.optionsUrl
 			else items=_.map item.options, (opt)->
@@ -335,5 +340,19 @@ jQuery(document).ready ($)->
 		element = $(ajForm.formElement).find "input[name='#{name}']"
 		element = $(ajForm.formElement).find "select[name='#{name}']" if element.length is 0
 		element
+
+	ajForm.getFieldOption = (fieldName)->
+		fieldObj = {}
+		forEach = (fields)->
+			_.each fields, (field, name)->
+				if name is fieldName
+					fieldObj = field
+				else if field.fields
+					forEach field.fields
+			fieldObj
+
+		forEach ajForm.options.fields
+
+
 
 		
