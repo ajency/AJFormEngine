@@ -14,7 +14,7 @@ jQuery(document).ready ($)->
 				min: '2015/03/05'
 				max: 'today'
 
-			text1: 
+			text13434: 
 				type	: 'textbox'
 				validation: required: true
 
@@ -32,7 +32,7 @@ jQuery(document).ready ($)->
 							value	: 'active'
 
 			status: 
-				type	: 'dropdown'
+				type	: 'autosuggest'
 				options	: ['active','suspended']
 				
 			primary_advisor: 
@@ -86,6 +86,9 @@ jQuery(document).ready ($)->
 					business_name	: type	: 'textbox'
 					email			: type	: 'textbox',validation: type: 'email'
 					phone			: type	: 'textbox'
+					status: 
+						type	: 'autosuggest'
+						options	: ['active1','suspended1']
 					partner	:
 						type : 'repeatable_section'
 						fields:
@@ -94,13 +97,16 @@ jQuery(document).ready ($)->
 							business_name	: type	: 'textbox'
 							email			: type	: 'textbox',validation: type: 'email'
 							phone			: type	: 'textbox'
-					start_date: 
-						type  : 'date'
-						min: '2015/03/10'
-						max: '2015/03/20'
-					# places: 
-					# 	type	: 'autosuggest'
-					# 	optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+							status: 
+								type	: 'autosuggest'
+								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+#					start_date: 
+#						type  : 'date'
+#						min: '2015/03/10'
+#						max: '2015/03/20'
+#					places: 
+#						type	: 'autosuggest'
+#						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 
 			sole_trader:
 				columns: 3
