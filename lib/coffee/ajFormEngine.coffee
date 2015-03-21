@@ -275,7 +275,14 @@ jQuery(document).ready ($)->
 		validator.validate()
 		if validator.isValid()
 			data = Backbone.Syphon.serialize @
-			$(form).trigger "ajFormSubmitted", data
+			# $(form).trigger "ajFormSubmitted", data
+
+			if _.has(ajForm.options, 'submitUrl')
+				$.ajax url: ajForm.options.submitUrl, type: 'POST', data: data
+				.done (response)->
+					console.log response
+				.fail (error)->
+					console.log error
 			
 	ajForm.bindConditions=->
 		conditions= _.chain ajForm.options.fields

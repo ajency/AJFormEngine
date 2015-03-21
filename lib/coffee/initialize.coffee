@@ -2,6 +2,7 @@ jQuery(document).ready ($)->
 	
 	formbuilderOptions = 
 		columns : 2
+		submitUrl: '' 
 		fields:					
 			role: 
 				type	: 'dropdown'
@@ -14,7 +15,7 @@ jQuery(document).ready ($)->
 				min: '2015/03/05'
 				max: 'today'
 
-			text13434: 
+			text1: 
 				type	: 'textbox'
 				validation: required: true
 
@@ -97,16 +98,13 @@ jQuery(document).ready ($)->
 							business_name	: type	: 'textbox'
 							email			: type	: 'textbox',validation: type: 'email'
 							phone			: type	: 'textbox'
-							status: 
+							places: 
 								type	: 'autosuggest'
 								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
-#					start_date: 
-#						type  : 'date'
-#						min: '2015/03/10'
-#						max: '2015/03/20'
-#					places: 
-#						type	: 'autosuggest'
-#						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+							start_date: 
+								type  : 'date'
+								min: '2015/03/10'
+								max: '2015/03/20'
 
 			sole_trader:
 				columns: 3
