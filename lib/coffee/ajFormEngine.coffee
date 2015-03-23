@@ -22,6 +22,7 @@ jQuery(document).ready ($)->
 		ajForm.addDatePicker element
 		ajForm.addAutoSuggest element
 		ajForm.setAutogrowTextHeight element
+		ajForm.addMultiselectDropdown element
 		$(formElement).find('.richtext').wysihtml5()
 		
 		$(formElement).bind 'submit', ajForm.handleFormSubmit
@@ -202,7 +203,14 @@ jQuery(document).ready ($)->
 				'+section.value+'
 			</div>
 		</div>'
-		
+
+	ajForm.get_multiselect_dropdown=(field,name,secondaryName)->
+		name = "#{secondaryName}[#{name}]" if secondaryName
+		html = '<select '+ajForm.validations(field.validation)+' name="'+name+'" class="form-control" multiple>'
+		_.each field.options, (option)=>
+			opt = ajForm.formatOptions option
+			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
+		html += '</select>'
 	
 	ajForm.validations=(validation)->
 		validation_str = ''
@@ -275,6 +283,12 @@ jQuery(document).ready ($)->
 
 		if $(ele).prop('clientHeight') < $(ele).prop('scrollHeight')
 			$(ele).css 'height' : ($(ele).prop('scrollHeight') * 2 - $(ele).prop('clientHeight')) + "px"
+
+	ajForm.addMultiselectDropdown = (element)->
+		multiselectElements = element.find '[multiple]'
+		_.each multiselectElements, (el)->
+			$(el).multiselect
+				includeSelectAllOption: true
 	
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()

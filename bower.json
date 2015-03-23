@@ -18,7 +18,8 @@
     "backbone.syphon": "~0.5.1",
     "parsleyjs": "~2.0.7",
     "wysihtml5": "~0.3.0",
-    "bootstrap-wysihtml5": "*"
+    "bootstrap-wysihtml5": "*",
+    "bootstrap-multiselect": "~0.9.12"
   },
   "resolutions": {
     "backbone.syphon": "~0.5.1"
