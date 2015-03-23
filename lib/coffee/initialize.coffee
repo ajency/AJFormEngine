@@ -13,11 +13,14 @@ jQuery(document).ready ($)->
 			buy_items:
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
-				attributes: ['disabled']
+				# attributes: ['disabled']
 
 			textarea:
 				type: 'textarea'
 				attributes: ['disabled']
+
+			hidden_field:
+				type: 'hidden'
 
 			dob:
 				type: 'date'

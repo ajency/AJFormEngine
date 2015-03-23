@@ -57,7 +57,7 @@ jQuery(document).ready ($)->
 					field.label = s.humanize name if not field.label
 					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
 					form += '<div class="form-group fly-group">'
-					form += '<label class="fly-label classic">'+field.label+'</label>'
+					form += '<label class="fly-label classic">'+field.label+'</label>' if field.type isnt 'hidden'
 					form += fieldFunction field,name,secondaryName
 					form += '</div>'
 				form += '</div>'
@@ -218,6 +218,10 @@ jQuery(document).ready ($)->
 			opt = ajForm.formatOptions option
 			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
 		html += '</select>'
+
+	ajForm.get_hidden=(field,name,secondaryName)->
+		name = "#{secondaryName}[#{name}]" if secondaryName
+		'<input type="hidden" class="form-control input-sm" name="'+name+'">'
 	
 	ajForm.validations=(validation)->
 		validation_str = ''
