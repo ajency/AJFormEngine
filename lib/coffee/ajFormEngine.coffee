@@ -222,6 +222,12 @@ jQuery(document).ready ($)->
 	ajForm.get_hidden=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		'<input type="hidden" class="form-control input-sm" name="'+name+'">'
+
+	ajForm.get_label=(field,name,secondaryName)->
+		name = "#{secondaryName}[#{name}]" if secondaryName
+		if _.has(field, 'html') then content = field.html
+		else content = 'Missing label option (html)'
+		'<label name="'+name+'">'+content+'</label>'
 	
 	ajForm.validations=(validation)->
 		validation_str = ''

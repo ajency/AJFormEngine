@@ -13,11 +13,15 @@ jQuery(document).ready ($)->
 			buy_items:
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
-				# attributes: ['disabled']
 
 			textarea:
 				type: 'textarea'
 				attributes: ['disabled']
+
+			random_label:
+				type: 'label'
+				# html: 'Some random label' #Plain text
+				html: '<p><b>Some random text</b></p>' #Html
 
 			hidden_field:
 				type: 'hidden'
@@ -108,7 +112,7 @@ jQuery(document).ready ($)->
 							phone			: type	: 'textbox'
 							places: 
 								type	: 'autosuggest'
-								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 							start_date: 
 								type  : 'date'
 								min: '2015/03/10'
