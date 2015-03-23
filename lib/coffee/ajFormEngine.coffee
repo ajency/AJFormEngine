@@ -152,6 +152,8 @@ jQuery(document).ready ($)->
 	ajForm.get_dropdown=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = '<select '+ajForm.validations(field.validation)+'  name="'+name+'" class="form-control">'
+		selectLabel = if _.has(field, 'selectLabel') then field.selectLabel else 'Select'
+		html += '<option value="">'+selectLabel+'</option>'
 		_.each field.options, (option)=>
 			opt = ajForm.formatOptions option
 			html += '<option value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>'+opt.label+'</option>'
@@ -218,11 +220,11 @@ jQuery(document).ready ($)->
 		opt
 
 	ajForm.preSelected = (field, option)->
+		selected = ''
 		if _.has(field, 'default')
 			if field.default is option
-				if field.type is 'dropdown' then 'selected' else 'checked'
-			else ''
-		else ''
+				selected = if field.type is 'dropdown' then 'selected' else 'checked'
+		selected
 		
 	ajForm.addDatePicker=(element)->
 		dateElements = element.find 'input[type="date"]'

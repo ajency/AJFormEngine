@@ -49,7 +49,7 @@ jQuery(document).ready ($)->
 			gender:
 				type	: 'radio'
 				options : ['male','female']
-				default: 'female'
+				default: 'male'
 
 			mood:
 				type: 'checkbox'
@@ -59,6 +59,7 @@ jQuery(document).ready ($)->
 			business_type:
 				type	: 'dropdown'
 				options : ['pvt_individual','partnership','sole_trader','plc']
+				selectLabel: 'Select the business type'
 
 			pvt_individual:
 				type: 'section',
