@@ -10,10 +10,9 @@ jQuery(document).ready ($)->
 				default: 'user'
 				validation: required: true
 
-			buy:
+			buy_items:
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
-				validation: required: true
 
 			dob:
 				type: 'date'
