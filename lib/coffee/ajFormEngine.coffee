@@ -56,8 +56,8 @@ jQuery(document).ready ($)->
 				if typeof fieldFunction is 'function'
 					field.label = s.humanize name if not field.label
 					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
-					form += '<div class="form-group fly-group">
-								<label class="fly-label classic">'+field.label+'</label>'
+					form += '<div class="form-group fly-group">'
+					form += '<label class="fly-label classic">'+field.label+'</label>'
 					form += fieldFunction field,name,secondaryName
 					form += '</div>'
 				form += '</div>'
@@ -78,10 +78,10 @@ jQuery(document).ready ($)->
 	ajForm.get_section=(section,sectionName, columns,secondaryName=false)->
 		
 		if section.label? and section.label is false
-			title=sectionClass=''
+			title=sectionClass= ''
 		else
 			section.label= s.titleize s.humanize sectionName if not section.label
-			title='<h5 class="thin">'+section.label+'</h5>'
+			title= '<h5 class="thin">'+section.label+'</h5>'
 			sectionClass = ' well'
 		
 		columns = section.columns if section.columns
@@ -151,15 +151,15 @@ jQuery(document).ready ($)->
 	
 	ajForm.get_textbox=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		'<input type="text" '+ajForm.validations(field.validation)+' class="form-control input-sm" name="'+name+'">'
+		'<input type="text" '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' class="form-control input-sm" name="'+name+'">'
 		
 	ajForm.get_date=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		'<input type="date" '+ajForm.validations(field.validation)+' class="form-control input-sm" name="'+name+'">'
+		'<input type="date" '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' class="form-control input-sm" name="'+name+'">'
 		
 	ajForm.get_dropdown=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		html = '<select '+ajForm.validations(field.validation)+'  name="'+name+'" class="form-control">'
+		html = '<select '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="form-control">'
 		selectLabel = if _.has(field, 'selectLabel') then field.selectLabel else 'Select'
 		html += '<option value="">'+selectLabel+'</option>'
 		_.each field.options, (option)=>
@@ -173,7 +173,7 @@ jQuery(document).ready ($)->
 		_.each field.options, (option)->
 			opt = ajForm.formatOptions option
 			html += '<label class="radio-inline m-l-20">
-					<input '+ajForm.validations(field.validation)+' type="radio" name="'+name+'" value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>
+					<input '+ajForm.validations(field.validation)+' type="radio" name="'+name+'" value="'+opt.value+'" '+ajForm.preSelected(field, option)+' '+ajForm.attributes(field.attributes)+'>
 					<span class="lbl padding-8">'+opt.label+'</span>
 				</label>'
 		html
@@ -184,19 +184,19 @@ jQuery(document).ready ($)->
 		_.each field.options, (option)->
 			opt = ajForm.formatOptions option
 			html += '<label class="radio-inline m-l-20">
-					<input '+ajForm.validations(field.validation)+' type="checkbox" name="'+name+'" value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>
+					<input '+ajForm.validations(field.validation)+' type="checkbox" name="'+name+'" value="'+opt.value+'" '+ajForm.preSelected(field, option)+' '+ajForm.attributes(field.attributes)+'>
 					<span class="lbl padding-8">'+opt.label+'</span>
 				</label>'
 		html
 		
 	ajForm.get_autosuggest=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		'<div data-id="'+name+'" class="magicsuggest"></div>'
+		'<div data-id="'+name+'" class="magicsuggest" '+ajForm.attributes(field.attributes)+'></div>'
 		
 	ajForm.get_textarea=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		autogrowClass = if field.autogrow then ' autogrow ' else ''
-		'<textarea '+ajForm.validations(field.validation)+' name="'+name+'" class="'+autogrowClass+' form-control" placeholder="Enter text ..."></textarea>'
+		'<textarea '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="'+autogrowClass+' form-control" placeholder="Enter text ..."></textarea>'
 		
 	ajForm.get_richtext=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
@@ -213,7 +213,7 @@ jQuery(document).ready ($)->
 
 	ajForm.get_multiselect_dropdown=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		html = '<select '+ajForm.validations(field.validation)+' name="'+name+'" class="form-control" multiple>'
+		html = '<select '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="form-control" multiple>'
 		_.each field.options, (option)=>
 			opt = ajForm.formatOptions option
 			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
@@ -240,6 +240,13 @@ jQuery(document).ready ($)->
 			if field.default is option
 				selected = if field.type is 'dropdown' then 'selected' else 'checked'
 		selected
+
+	ajForm.attributes = (attrs)->
+		attributes = ''
+		if attrs and _.isObject(attrs)
+			_.each attrs, (attr)->
+				attributes += "#{attr} "
+		attributes
 		
 	ajForm.addDatePicker=(element)->
 		dateElements = element.find 'input[type="date"]'
@@ -425,3 +432,4 @@ jQuery(document).ready ($)->
 		$(addedSection).find '.multiselect'
 		.closest '.btn-group'
 		.remove()
+
