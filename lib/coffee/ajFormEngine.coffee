@@ -19,11 +19,7 @@ jQuery(document).ready ($)->
 		
 		ajForm.bindConditions()
 		
-		ajForm.addDatePicker element
-		ajForm.addAutoSuggest element
-		ajForm.setAutogrowTextHeight element
-		ajForm.addMultiselectDropdown element
-		$(formElement).find('.richtext').wysihtml5()
+		ajForm.triggerFieldPlugins element
 		
 		$(formElement).bind 'submit', ajForm.handleFormSubmit
 		$(formElement.find('.autogrow')).bind 'keyup', ajForm.autoGrowText
@@ -82,10 +78,8 @@ jQuery(document).ready ($)->
 	ajForm.get_section=(section,sectionName, columns,secondaryName=false)->
 		
 		if section.label? and section.label is false
-			#if section label is explicitly specified as false then no border and no label is applied to section
 			title=sectionClass=''
 		else
-			#if section label is specified then its used else the name is converted to label
 			section.label= s.titleize s.humanize sectionName if not section.label
 			title='<h5 class="thin">'+section.label+'</h5>'
 			sectionClass = ' well'
@@ -127,12 +121,15 @@ jQuery(document).ready ($)->
 					completeName = name.replace nameToReplace, newName
 					$(ele).attr 'name', completeName
 				
-		$(ajForm.formElement).find('.' + sectionName).last()
-		.append '<div class="form-group clearfix">
+		addedSection = $(ajForm.formElement).find('.' + sectionName).last()
+		addedSection.append '<div class="form-group clearfix">
 				<a class="remove-section btn btn-link pull-right">Delete</a>
 			</div>'
 		
 		$(ajForm.formElement).find('a.remove-section').bind 'click', ajForm.removeSection
+		
+		ajForm.cleanupAddedSection addedSection		
+		ajForm.triggerFieldPlugins addedSection
 		
 	ajForm.makeid = ->
 		text = ""
@@ -415,3 +412,16 @@ jQuery(document).ready ($)->
 			item= ajForm.options.fields[name]
 			
 		item
+		
+	ajForm.triggerFieldPlugins=(element)->
+		ajForm.addDatePicker element
+		ajForm.addAutoSuggest element
+		ajForm.setAutogrowTextHeight element
+		ajForm.addMultiselectDropdown element
+		$(element).find('.richtext').wysihtml5()
+
+	#remove unnecessary dom elements from the cloned section
+	ajForm.cleanupAddedSection=(addedSection)->
+		$(addedSection).find '.multiselect'
+		.closest '.btn-group'
+		.remove()
