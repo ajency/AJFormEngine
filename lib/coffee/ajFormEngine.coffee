@@ -80,7 +80,15 @@ jQuery(document).ready ($)->
 		form
 	
 	ajForm.get_section=(section,sectionName, columns,secondaryName=false)->
-		section.label= s.titleize s.humanize sectionName if not section.label
+		
+		if section.label? and section.label is false
+			#if section label is explicitly specified as false then no border and no label is applied to section
+			title=sectionClass=''
+		else
+			#if section label is specified then its used else the name is converted to label
+			section.label= s.titleize s.humanize sectionName if not section.label
+			title='<h5 class="thin">'+section.label+'</h5>'
+			sectionClass = ' well'
 		
 		columns = section.columns if section.columns
 		secondaryName = if secondaryName then "#{secondaryName}[#{sectionName}]" else sectionName
@@ -89,8 +97,8 @@ jQuery(document).ready ($)->
 		hideElement = if section.conditionals then ' style="display:none" ' else ''
 		
 		html = '<section class="ajForm-'+sectionName+' '+sectionName+'" '+hideElement+'>
-				<div class="well">
-				<h5 class="thin">'+section.label+'</h5>'
+				<div class="'+sectionClass+'">'+title
+				
 		html +='<div class="row"><div class="col-md-12">'
 		html += ajForm.generateFields section.fields, columns, secondaryName
 		html += '</div></div></div></section>'
@@ -103,7 +111,7 @@ jQuery(document).ready ($)->
 		html
 		
 	ajForm.addSection = (evt)->
-		button = $(evt.target)
+		button = $(evt.currentTarget)
 		sectionName = button.attr 'data-section'
 		section = $(ajForm.formElement).find('.' + sectionName).first().clone()
 		section.find('input, textarea, select').val ''
@@ -111,11 +119,13 @@ jQuery(document).ready ($)->
 		newName = "#{ajForm.makeid()}"
 		section.find('input, textarea, select').each (index, ele)=>
 			name = $(ele).attr 'name'
-			array = name.split '['
-			nameToReplace = array[1].split(']').shift()
-			if nameToReplace 
-				completeName = name.replace nameToReplace, newName
-				$(ele).attr 'name', completeName
+			if name
+				array = name.split '['
+				arraySize= _.size array
+				nameToReplace = array[arraySize-2].split(']').shift()
+				if nameToReplace 
+					completeName = name.replace nameToReplace, newName
+					$(ele).attr 'name', completeName
 				
 		$(ajForm.formElement).find('.' + sectionName).last()
 		.append '<div class="form-group clearfix">
