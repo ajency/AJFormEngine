@@ -294,11 +294,7 @@ jQuery(document).ready ($)->
 					console.log error
 			
 	ajForm.bindConditions=->
-		conditions= _.chain ajForm.options.fields
-					.pluck 'conditionals'
-					.compact()
-					.pluck 'conditions'
-					.value()
+		conditions = ajForm.getConditions ajForm.options.fields
 		
 		triggers = _.map conditions, (c)-> _.keys(c)
 		triggers = _.unique _.flatten triggers
@@ -307,25 +303,52 @@ jQuery(document).ready ($)->
 			element = ajForm.findFieldElement t
 			$(element).bind 'change', ajForm.triggerConditional
 	
+	ajForm.getConditions=(fields, conditions=[])->
+		_.each fields, (field)->
+			if field.conditionals
+				if field.conditionals.conditions
+					conditions.push field.conditionals.conditions 
+				else
+					conditions.push field.conditionals					
+			ajForm.getConditions field.fields,conditions if field.fields 
+		conditions
+		
+	#fields that mite be affected by the trigger
+	ajForm.getAffectableFields=(fields, triggerName, conditionals=[])->
+		_.each fields, (field,index)->
+			if field.conditionals
+				if _.has(field.conditionals,triggerName) or _.has field.conditionals.conditions,triggerName
+					field.name = index
+					conditionals.push field
+			ajForm.getAffectableFields field.fields,triggerName,conditionals if field.fields 
+		conditionals
+	
 	ajForm.triggerConditional=(evt)->
 		
 		triggerValue= $(evt.target).val()
 		triggerName = $(evt.target).attr 'name'
 		
-		conditionalFields = _.filter ajForm.options.fields, (field,index)-> 
-								if field.conditionals and _.has field.conditionals.conditions,triggerName
-									field.name = index
-									field
+		affectableFields = ajForm.getAffectableFields ajForm.options.fields,triggerName
 		
-		#conditionalFields are fields that get affected due to this change
-		_.each conditionalFields, (field)->
-			conditions = field.conditionals.conditions
+		#affectableFields are fields that get affected due to this change
+		_.each affectableFields, (field)->
 			
-			requiredMatches = if field.conditionals.type is 'any' then 1 else _.size conditions
+			if field.conditionals.conditions
+				fieldConditions		= field.conditionals.conditions
+				fieldConditionType	= field.conditionals.type
+				fieldDisplay		= field.conditionals.display
+			
+			else
+				fieldConditions		= {}
+				_.each field.conditionals, (c,index)-> fieldConditions[index]=  operator: '=', value : c
+				fieldConditionType	= 'any'
+				fieldDisplay		= 'show'
+			
+			requiredMatches = if fieldConditionType is 'any' then 1 else _.size fieldConditions
 			matchCount		= 0
 			success = false
-			
-			_.each conditions, (c,index)->
+			_.each fieldConditions, (c,index)->
+				
 				ele = ajForm.findFieldElement index
 				switch (c.operator)
 					when '='
@@ -339,17 +362,15 @@ jQuery(document).ready ($)->
 						
 				if matchCount is requiredMatches
 					success= true
-					
+			
+			#show or hide the element based on display type
+			fieldDivEl = $(ajForm.formElement).find '.ajForm-'+field.name
+			
 			if success
-				if field.conditionals.display is 'show'
-					$(ajForm.formElement).find('.ajForm-'+field.name).show()
-				else
-					$(ajForm.formElement).find('.ajForm-'+field.name).hide()
+				if fieldDisplay is 'show' then fieldDivEl.show() else fieldDivEl.hide()
+				
 			else
-				if field.conditionals.display is 'show'
-					$(ajForm.formElement).find('.ajForm-'+field.name).hide()
-				else
-					$(ajForm.formElement).find('.ajForm-'+field.name).show()
+				if fieldDisplay is 'show' then fieldDivEl.hide() else fieldDivEl.show()
 				
 				
 	ajForm.findFieldElement=(name)->
@@ -370,7 +391,3 @@ jQuery(document).ready ($)->
 			item= ajForm.options.fields[name]
 			
 		item
-
-
-
-		
