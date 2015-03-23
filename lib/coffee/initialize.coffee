@@ -14,6 +14,18 @@ jQuery(document).ready ($)->
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
 
+			textarea:
+				type: 'textarea'
+				attributes: ['disabled']
+
+			random_label:
+				type: 'label'
+				# html: 'Some random label' #Plain text
+				html: '<p><b>Some random text</b></p>' #Html
+
+			hidden_field:
+				type: 'hidden'
+
 			dob:
 				type: 'date'
 				label: 'date of birth'
@@ -48,7 +60,7 @@ jQuery(document).ready ($)->
 
 			cities: 
 				type	: 'autosuggest'
-				optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+				optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 				
 			gender:
 				type	: 'radio'
@@ -100,11 +112,14 @@ jQuery(document).ready ($)->
 							phone			: type	: 'textbox'
 							places: 
 								type	: 'autosuggest'
-								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php' 
+								optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 							start_date: 
 								type  : 'date'
 								min: '2015/03/10'
 								max: '2015/03/20'
+							buy_items:
+								type: 'multiselect_dropdown'
+								options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
 
 			sole_trader:
 				columns: 3
@@ -134,5 +149,6 @@ jQuery(document).ready ($)->
 				
 			additional_info: 
 				type	: 'richtext'
+				attributes: ['disabled']
 				
 	$.AJFormEngine $('.form-div'), formbuilderOptions	
