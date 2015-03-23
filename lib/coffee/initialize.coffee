@@ -68,13 +68,7 @@ jQuery(document).ready ($)->
 
 			pvt_individual:
 				type: 'section',
-				conditionals:
-					type: 'any'
-					display: 'show'
-					conditions: 
-						business_type: 
-							operator: '='
-							value	: 'pvt_individual'
+				conditionals: business_type : 'pvt_individual'
 
 				fields:
 					first_name	: type	: 'textbox'
@@ -87,13 +81,7 @@ jQuery(document).ready ($)->
 
 			partnership:
 				type: 'section',
-				conditionals:
-					type: 'all'
-					display: 'show'
-					conditions: 
-						business_type: 
-							operator: '='
-							value	: 'partnership'
+				conditionals: business_type : 'partnership'
 				fields:
 					first_name		: type	: 'textbox'
 					last_name		: type	: 'textbox'
@@ -122,13 +110,7 @@ jQuery(document).ready ($)->
 			sole_trader:
 				columns: 3
 				type: 'section',
-				conditionals:
-					type: 'any'
-					display: 'show'
-					conditions: 
-						business_type: 
-							operator: '='
-							value	: 'sole_trader'
+				conditionals: business_type: 'sole_trader'
 				fields:
 					first_name	: type	: 'textbox'
 					last_name		: type	: 'textbox'
@@ -139,13 +121,7 @@ jQuery(document).ready ($)->
 			pvt_ltd_company:
 				columns: 4
 				type: 'section',
-				conditionals:
-					type: 'any'
-					display: 'show'
-					conditions: 
-						business_type: 
-							operator: '='
-							value	: 'plc'
+				conditionals: business_type : 'plc'
 				fields:
 					director:
 						type: 'repeatable_section'
