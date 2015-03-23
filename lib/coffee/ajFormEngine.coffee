@@ -19,11 +19,7 @@ jQuery(document).ready ($)->
 		
 		ajForm.bindConditions()
 		
-		ajForm.addDatePicker element
-		ajForm.addAutoSuggest element
-		ajForm.setAutogrowTextHeight element
-		ajForm.addMultiselectDropdown element
-		$(formElement).find('.richtext').wysihtml5()
+		ajForm.triggerFieldPlugins element
 		
 		$(formElement).bind 'submit', ajForm.handleFormSubmit
 		$(formElement.find('.autogrow')).bind 'keyup', ajForm.autoGrowText
@@ -80,7 +76,13 @@ jQuery(document).ready ($)->
 		form
 	
 	ajForm.get_section=(section,sectionName, columns,secondaryName=false)->
-		section.label= s.titleize s.humanize sectionName if not section.label
+		
+		if section.label? and section.label is false
+			title=sectionClass=''
+		else
+			section.label= s.titleize s.humanize sectionName if not section.label
+			title='<h5 class="thin">'+section.label+'</h5>'
+			sectionClass = ' well'
 		
 		columns = section.columns if section.columns
 		secondaryName = if secondaryName then "#{secondaryName}[#{sectionName}]" else sectionName
@@ -89,8 +91,8 @@ jQuery(document).ready ($)->
 		hideElement = if section.conditionals then ' style="display:none" ' else ''
 		
 		html = '<section class="ajForm-'+sectionName+' '+sectionName+'" '+hideElement+'>
-				<div class="well">
-				<h5 class="thin">'+section.label+'</h5>'
+				<div class="'+sectionClass+'">'+title
+				
 		html +='<div class="row"><div class="col-md-12">'
 		html += ajForm.generateFields section.fields, columns, secondaryName
 		html += '</div></div></div></section>'
@@ -103,7 +105,7 @@ jQuery(document).ready ($)->
 		html
 		
 	ajForm.addSection = (evt)->
-		button = $(evt.target)
+		button = $(evt.currentTarget)
 		sectionName = button.attr 'data-section'
 		section = $(ajForm.formElement).find('.' + sectionName).first().clone()
 		section.find('input, textarea, select').val ''
@@ -111,19 +113,23 @@ jQuery(document).ready ($)->
 		newName = "#{ajForm.makeid()}"
 		section.find('input, textarea, select').each (index, ele)=>
 			name = $(ele).attr 'name'
-			if !_.isUndefined name
+			if name
 				array = name.split '['
-				nameToReplace = array[1].split(']').shift()
+				arraySize= _.size array
+				nameToReplace = array[arraySize-2].split(']').shift()
 				if nameToReplace 
 					completeName = name.replace nameToReplace, newName
 					$(ele).attr 'name', completeName
 				
-		$(ajForm.formElement).find('.' + sectionName).last()
-		.append '<div class="form-group clearfix">
+		addedSection = $(ajForm.formElement).find('.' + sectionName).last()
+		addedSection.append '<div class="form-group clearfix">
 				<a class="remove-section btn btn-link pull-right">Delete</a>
 			</div>'
 		
 		$(ajForm.formElement).find('a.remove-section').bind 'click', ajForm.removeSection
+		
+		ajForm.cleanupAddedSection addedSection		
+		ajForm.triggerFieldPlugins addedSection
 		
 	ajForm.makeid = ->
 		text = ""
@@ -406,3 +412,16 @@ jQuery(document).ready ($)->
 			item= ajForm.options.fields[name]
 			
 		item
+		
+	ajForm.triggerFieldPlugins=(element)->
+		ajForm.addDatePicker element
+		ajForm.addAutoSuggest element
+		ajForm.setAutogrowTextHeight element
+		ajForm.addMultiselectDropdown element
+		$(element).find('.richtext').wysihtml5()
+
+	#remove unnecessary dom elements from the cloned section
+	ajForm.cleanupAddedSection=(addedSection)->
+		$(addedSection).find '.multiselect'
+		.closest '.btn-group'
+		.remove()
