@@ -151,7 +151,8 @@ jQuery(document).ready ($)->
 	
 	ajForm.get_textbox=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		'<input type="text" '+ajForm.validations(field.validation)+' class="form-control input-sm" name="'+name+'">'
+		value = if field.value then field.value else ''
+		"<input value='#{value}' type='text' #{ajForm.validations(field.validation)} class='form-control input-sm' name=#{name}>"
 		
 	ajForm.get_date=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
@@ -301,7 +302,11 @@ jQuery(document).ready ($)->
 		e.preventDefault()
 		form = $(e.target).closest 'form'
 		
-		validator = form.parsley errorsContainer : (ParsleyField)-> $(ParsleyField.$element).closest '.form-group'
+		validator = form.parsley 
+						excluded		: ':hidden'
+						errorsContainer : (ParsleyField)-> $(ParsleyField.$element).closest '.form-group'
+		validator.destroy()
+		
 		validator.validate()
 		if validator.isValid()
 			data = Backbone.Syphon.serialize @
