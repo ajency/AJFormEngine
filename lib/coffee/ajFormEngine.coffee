@@ -111,11 +111,12 @@ jQuery(document).ready ($)->
 		newName = "#{ajForm.makeid()}"
 		section.find('input, textarea, select').each (index, ele)=>
 			name = $(ele).attr 'name'
-			array = name.split '['
-			nameToReplace = array[1].split(']').shift()
-			if nameToReplace 
-				completeName = name.replace nameToReplace, newName
-				$(ele).attr 'name', completeName
+			if !_.isUndefined name
+				array = name.split '['
+				nameToReplace = array[1].split(']').shift()
+				if nameToReplace 
+					completeName = name.replace nameToReplace, newName
+					$(ele).attr 'name', completeName
 				
 		$(ajForm.formElement).find('.' + sectionName).last()
 		.append '<div class="form-group clearfix">
