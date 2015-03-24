@@ -1,15 +1,28 @@
 jQuery(document).ready ($)->
 
-	$(@).on '$on:do:something', (event, data)->
-		console.log '$on:do:something'
-		console.log data
-
-	$(@).on '$on:save:data:locally', (event, data)->
-		console.log '$on:save:data:locally'
-		console.log data
+	$(@).on 'aj:form:initialized', (event, data)->
+		console.log 'aj:form:initialized'
 
 	$(@).on 'aj:form:section:added', (event, data)->
 		console.log 'aj:form:section:added'
+
+	$(@).on 'aj:form:submit', (event, data)->
+		console.log 'aj:form:submit'
+
+	$(@).on 'aj:form:ajax:submit:complete', (e, ajax)->
+		ajax.done (response)->
+			console.log 'Submit Response'
+			console.log response
+
+		ajax.fail (error)->
+			console.log 'Submit Error'
+			console.log error
+
+	#Button event
+	$(@).on '$on:do:something', (event, data)->
+		console.log '$on:do:something'
+
+
 	
 	formbuilderOptions = 
 		columns : 2
@@ -135,10 +148,6 @@ jQuery(document).ready ($)->
 							buy_items:
 								type: 'multiselect_dropdown'
 								options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
-							save_data:
-								type: 'button'
-								label: 'Save data locally'
-								triggerClick: '$on:save:data:locally'
 
 			sole_trader:
 				columns: 3

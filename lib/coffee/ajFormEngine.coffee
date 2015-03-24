@@ -24,6 +24,7 @@ jQuery(document).ready ($)->
 		$(formElement).bind 'submit', ajForm.handleFormSubmit
 		$(formElement.find('.autogrow')).bind 'keyup', ajForm.autoGrowText
 		$(formElement.find('a.add-section')).bind 'click', ajForm.addSection
+		$(ajForm.formElement).trigger "aj:form:initialized", ajForm
 		form
 	
 	#secondary_id is used incase of repeatable sections. gives the section a common index
@@ -299,6 +300,7 @@ jQuery(document).ready ($)->
 					data= id: opt.value, name: opt.label
 					
 			$(el).magicSuggest
+				ajaxConfig: method: 'GET'
 				maxSelection	: if item.maxSelection then item.maxSelection else false
 				data			: items
 				
@@ -338,14 +340,11 @@ jQuery(document).ready ($)->
 		validator.validate()
 		if validator.isValid()
 			data = Backbone.Syphon.serialize @
-			$(form).trigger "ajFormSubmitted", data
+			$(form).trigger "aj:form:submit", data
 
 			if _.has(ajForm.options, 'submitUrl')
-				$.ajax url: ajForm.options.submitUrl, type: 'POST', data: data
-				.done (response)->
-					console.log response
-				.fail (error)->
-					console.log error
+				ajaxSubmit = $.ajax url: ajForm.options.submitUrl, type: 'POST', data: data
+				$(form).trigger "aj:form:ajax:submit:complete", ajaxSubmit
 			
 	ajForm.bindConditions=->
 		conditions = ajForm.getConditions ajForm.options.fields
