@@ -1,12 +1,15 @@
 jQuery(document).ready ($)->
 
-	$('form').on '$on:do:something', (event, data)->
+	$(@).on '$on:do:something', (event, data)->
 		console.log '$on:do:something'
 		console.log data
 
-	$(window).on '$on:save:data:locally', (event, data)->
+	$(@).on '$on:save:data:locally', (event, data)->
 		console.log '$on:save:data:locally'
 		console.log data
+
+	$(@).on 'aj:form:section:added', (event, data)->
+		console.log 'aj:form:section:added'
 	
 	formbuilderOptions = 
 		columns : 2

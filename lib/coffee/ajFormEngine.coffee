@@ -119,7 +119,7 @@ jQuery(document).ready ($)->
 			name = $(ele).attr 'name'
 			array = name.split('[') if name
 			arraySize=if name then _.size(array) else 0
-			nameToReplace=''
+			nameToReplace = ''
 			nameToReplace = array[arraySize-2].split(']').shift() if arraySize >1
 			if nameToReplace 
 				completeName = name.replace nameToReplace, newName
@@ -452,8 +452,7 @@ jQuery(document).ready ($)->
 			buttonObj = ajForm.getFieldOption el.name
 			if _.has(buttonObj, 'triggerClick')
 				$(el).bind 'click', (e)->
-					form = $(e.target).closest 'form'
-					$('form').trigger "#{buttonObj.triggerClick}", e
+					$(ajForm.formElement).trigger "#{buttonObj.triggerClick}", e
 
 		
 	ajForm.triggerFieldPlugins=(element)->
