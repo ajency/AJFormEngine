@@ -108,7 +108,11 @@ jQuery(document).ready ($)->
 		button = $(evt.currentTarget)
 		sectionName = button.attr 'data-section'
 		section = $(ajForm.formElement).find('.' + sectionName).first().clone()
-		section.find('input, textarea, select').val ''
+		section.find('textarea, select').val ''
+
+		_.each section.find('input'), (el)->
+			$(el).val('') if $(el).attr('type') isnt 'button' #Don't clear the button value
+
 		$(ajForm.formElement).find('.' + sectionName).last().after section
 		newName = "#{ajForm.makeid()}"
 		section.find('input, textarea, select').each (index, ele)=>
