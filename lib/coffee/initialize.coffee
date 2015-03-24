@@ -9,14 +9,19 @@ jQuery(document).ready ($)->
 	$(@).on 'aj:form:submit', (event, data)->
 		console.log 'aj:form:submit'
 
-	$(@).on 'aj:form:ajax:submit:complete', (e, ajax)->
-		ajax.done (response)->
-			console.log 'Submit Response'
-			console.log response
+	$(@).on 'aj:form:ajax:before:submit', (event, data)->
+		console.log 'aj:form:ajax:before:submit'
 
-		ajax.fail (error)->
-			console.log 'Submit Error'
-			console.log error
+	$(@).on 'aj:form:ajax:submit:complete', (e, xhr)->
+		console.log 'aj:form:ajax:submit:complete'
+		xhr
+			.done (response)->
+				console.log 'SUBMIT RESPONSE'
+				console.log response
+			.fail (error)->
+				console.log 'SUBMIT ERROR'
+				console.log error
+
 
 	#Button event
 	$(@).on '$on:do:something', (event, data)->
