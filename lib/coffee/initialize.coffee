@@ -1,4 +1,12 @@
 jQuery(document).ready ($)->
+
+	$('form').on '$on:do:something', (event, data)->
+		console.log '$on:do:something'
+		console.log data
+
+	$(window).on '$on:save:data:locally', (event, data)->
+		console.log '$on:save:data:locally'
+		console.log data
 	
 	formbuilderOptions = 
 		columns : 2
@@ -25,6 +33,10 @@ jQuery(document).ready ($)->
 
 			hidden_field:
 				type: 'hidden'
+
+			do_something:
+				type: 'button'
+				triggerClick: '$on:do:something'
 
 			dob:
 				type: 'date'
@@ -120,6 +132,10 @@ jQuery(document).ready ($)->
 							buy_items:
 								type: 'multiselect_dropdown'
 								options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
+							save_data:
+								type: 'button'
+								label: 'Save data locally'
+								triggerClick: '$on:save:data:locally'
 
 			sole_trader:
 				columns: 3

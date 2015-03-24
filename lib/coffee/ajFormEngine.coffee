@@ -57,7 +57,7 @@ jQuery(document).ready ($)->
 					field.label = s.humanize name if not field.label
 					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
 					form += '<div class="form-group fly-group">'
-					form += '<label class="fly-label classic">'+field.label+'</label>' if field.type isnt 'hidden'
+					form += '<label class="fly-label classic">'+field.label+'</label>' if !_.contains(['hidden', 'button'], field.type)
 					form += fieldFunction field,name,secondaryName
 					form += '</div>'
 				form += '</div>'
@@ -211,7 +211,7 @@ jQuery(document).ready ($)->
 			</div>
 		</div>'
 
-	ajForm.get_multiselect_dropdown=(field,name,secondaryName)->
+	ajForm.get_multiselect_dropdown = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = '<select '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="form-control" multiple>'
 		_.each field.options, (option)=>
@@ -219,15 +219,20 @@ jQuery(document).ready ($)->
 			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
 		html += '</select>'
 
-	ajForm.get_hidden=(field,name,secondaryName)->
+	ajForm.get_hidden = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		'<input type="hidden" class="form-control input-sm" name="'+name+'">'
 
-	ajForm.get_label=(field,name,secondaryName)->
+	ajForm.get_label = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		if _.has(field, 'html') then content = field.html
 		else content = 'Missing label option (html)'
 		'<label name="'+name+'">'+content+'</label>'
+
+	ajForm.get_button = (field, name, secondaryName)->
+		name = "#{secondaryName}[#{name}]" if secondaryName
+		field.label = s.titleize s.humanize name if not field.label
+		'<input type="button" value="'+field.label+'" name="'+name+'" '+ajForm.attributes(field.attributes)+' class="btn btn-primary" />'
 	
 	ajForm.validations=(validation)->
 		validation_str = ''
@@ -429,6 +434,16 @@ jQuery(document).ready ($)->
 			item= ajForm.options.fields[name]
 			
 		item
+
+	ajForm.bindButtonEvents = (element)->
+		buttonElements = element.find 'input[type="button"]'
+		_.each buttonElements, (el)->
+			buttonObj = ajForm.getFieldOption el.name
+			if _.has(buttonObj, 'triggerClick')
+				$(el).bind 'click', (e)->
+					form = $(e.target).closest 'form'
+					$('form').trigger "#{buttonObj.triggerClick}", e
+
 		
 	ajForm.triggerFieldPlugins=(element)->
 		ajForm.addDatePicker element
@@ -436,6 +451,7 @@ jQuery(document).ready ($)->
 		ajForm.setAutogrowTextHeight element
 		ajForm.addMultiselectDropdown element
 		$(element).find('.richtext').wysihtml5()
+		ajForm.bindButtonEvents element
 
 	#remove unnecessary dom elements from the cloned section
 	ajForm.cleanupAddedSection=(addedSection)->
