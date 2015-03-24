@@ -113,13 +113,13 @@ jQuery(document).ready ($)->
 		newName = "#{ajForm.makeid()}"
 		section.find('input, textarea, select').each (index, ele)=>
 			name = $(ele).attr 'name'
-			if name
-				array = name.split '['
-				arraySize= _.size array
-				nameToReplace = array[arraySize-2].split(']').shift()
-				if nameToReplace 
-					completeName = name.replace nameToReplace, newName
-					$(ele).attr 'name', completeName
+			array = name.split('[') if name
+			arraySize=if name then _.size(array) else 0
+			nameToReplace=''
+			nameToReplace = array[arraySize-2].split(']').shift() if arraySize >1
+			if nameToReplace 
+				completeName = name.replace nameToReplace, newName
+				$(ele).attr 'name', completeName
 				
 		addedSection = $(ajForm.formElement).find('.' + sectionName).last()
 		addedSection.append '<div class="form-group clearfix">
@@ -130,6 +130,8 @@ jQuery(document).ready ($)->
 		
 		ajForm.cleanupAddedSection addedSection		
 		ajForm.triggerFieldPlugins addedSection
+		
+		$(ajForm.formElement).trigger "aj:form:section:added", addedSection
 		
 	ajForm.makeid = ->
 		text = ""
@@ -327,7 +329,7 @@ jQuery(document).ready ($)->
 		validator.validate()
 		if validator.isValid()
 			data = Backbone.Syphon.serialize @
-			# $(form).trigger "ajFormSubmitted", data
+			$(form).trigger "ajFormSubmitted", data
 
 			if _.has(ajForm.options, 'submitUrl')
 				$.ajax url: ajForm.options.submitUrl, type: 'POST', data: data
