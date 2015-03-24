@@ -292,7 +292,10 @@ jQuery(document).ready ($)->
 			$(el).magicSuggest
 				maxSelection	: if item.maxSelection then item.maxSelection else false
 				data			: items
-				
+				ajaxConfig		: 
+					method: 'GET'
+					headers: 'X-WP-Nonce': WP_API_NONCE if WP_API_NONCE
+					
 		divs
 		
 	ajForm.setAutogrowTextHeight = (el)->
