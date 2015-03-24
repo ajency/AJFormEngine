@@ -24,6 +24,7 @@ jQuery(document).ready ($)->
 		$(formElement).bind 'submit', ajForm.handleFormSubmit
 		$(formElement.find('.autogrow')).bind 'keyup', ajForm.autoGrowText
 		$(formElement.find('a.add-section')).bind 'click', ajForm.addSection
+		$(ajForm.formElement).trigger "aj:form:initialized", ajForm
 		form
 	
 	#secondary_id is used incase of repeatable sections. gives the section a common index
@@ -57,7 +58,7 @@ jQuery(document).ready ($)->
 					field.label = s.humanize name if not field.label
 					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
 					form += '<div class="form-group fly-group">'
-					form += '<label class="fly-label classic">'+field.label+'</label>' if field.type isnt 'hidden'
+					form += '<label class="fly-label classic">'+field.label+'</label>' if !_.contains(['hidden', 'button'], field.type)
 					form += fieldFunction field,name,secondaryName
 					form += '</div>'
 				form += '</div>'
@@ -108,14 +109,18 @@ jQuery(document).ready ($)->
 		button = $(evt.currentTarget)
 		sectionName = button.attr 'data-section'
 		section = $(ajForm.formElement).find('.' + sectionName).first().clone()
-		section.find('input, textarea, select').val ''
+		section.find('textarea, select').val ''
+
+		_.each section.find('input'), (el)->
+			$(el).val('') if $(el).attr('type') isnt 'button' #Don't clear the button value
+
 		$(ajForm.formElement).find('.' + sectionName).last().after section
 		newName = "#{ajForm.makeid()}"
 		section.find('input, textarea, select').each (index, ele)=>
 			name = $(ele).attr 'name'
 			array = name.split('[') if name
 			arraySize=if name then _.size(array) else 0
-			nameToReplace=''
+			nameToReplace = ''
 			nameToReplace = array[arraySize-2].split(']').shift() if arraySize >1
 			if nameToReplace 
 				completeName = name.replace nameToReplace, newName
@@ -214,7 +219,7 @@ jQuery(document).ready ($)->
 			</div>
 		</div>'
 
-	ajForm.get_multiselect_dropdown=(field,name,secondaryName)->
+	ajForm.get_multiselect_dropdown = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = '<select '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="form-control" multiple>'
 		_.each field.options, (option)=>
@@ -222,15 +227,20 @@ jQuery(document).ready ($)->
 			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
 		html += '</select>'
 
-	ajForm.get_hidden=(field,name,secondaryName)->
+	ajForm.get_hidden = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		'<input type="hidden" class="form-control input-sm" name="'+name+'">'
 
-	ajForm.get_label=(field,name,secondaryName)->
+	ajForm.get_label = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		if _.has(field, 'html') then content = field.html
 		else content = 'Missing label option (html)'
 		'<label name="'+name+'">'+content+'</label>'
+
+	ajForm.get_button = (field, name, secondaryName)->
+		name = "#{secondaryName}[#{name}]" if secondaryName
+		field.label = s.titleize s.humanize name if not field.label
+		'<input type="button" value="'+field.label+'" name="'+name+'" '+ajForm.attributes(field.attributes)+' class="btn btn-primary" />'
 	
 	ajForm.validations=(validation)->
 		validation_str = ''
@@ -290,6 +300,7 @@ jQuery(document).ready ($)->
 					data= id: opt.value, name: opt.label
 					
 			$(el).magicSuggest
+				ajaxConfig: method: 'GET'
 				maxSelection	: if item.maxSelection then item.maxSelection else false
 				data			: items
 				ajaxConfig		: 
@@ -332,14 +343,17 @@ jQuery(document).ready ($)->
 		validator.validate()
 		if validator.isValid()
 			data = Backbone.Syphon.serialize @
-			$(form).trigger "ajFormSubmitted", data
+			$(form).trigger "aj:form:submit", data
 
 			if _.has(ajForm.options, 'submitUrl')
-				$.ajax url: ajForm.options.submitUrl, type: 'POST', data: data
-				.done (response)->
-					console.log response
-				.fail (error)->
-					console.log error
+				$.ajax 
+					url: ajForm.options.submitUrl
+					type: 'POST'
+					data: data
+					beforeSend: (xhr)->
+						$(form).trigger "aj:form:ajax:before:submit", data
+					complete: (xhr)->
+						$(form).trigger "aj:form:ajax:submit:complete", xhr
 			
 	ajForm.bindConditions=->
 		conditions = ajForm.getConditions ajForm.options.fields
@@ -439,6 +453,15 @@ jQuery(document).ready ($)->
 			item= ajForm.options.fields[name]
 			
 		item
+
+	ajForm.bindButtonEvents = (element)->
+		buttonElements = element.find 'input[type="button"]'
+		_.each buttonElements, (el)->
+			buttonObj = ajForm.getFieldOption el.name
+			if _.has(buttonObj, 'triggerClick')
+				$(el).bind 'click', (e)->
+					$(ajForm.formElement).trigger "#{buttonObj.triggerClick}", e
+
 		
 	ajForm.triggerFieldPlugins=(element)->
 		ajForm.addDatePicker element
@@ -446,6 +469,7 @@ jQuery(document).ready ($)->
 		ajForm.setAutogrowTextHeight element
 		ajForm.addMultiselectDropdown element
 		$(element).find('.richtext').wysihtml5()
+		ajForm.bindButtonEvents element
 
 	#remove unnecessary dom elements from the cloned section
 	ajForm.cleanupAddedSection=(addedSection)->

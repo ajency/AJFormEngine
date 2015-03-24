@@ -1,4 +1,33 @@
 jQuery(document).ready ($)->
+
+	$(@).on 'aj:form:initialized', (event, data)->
+		console.log 'aj:form:initialized'
+
+	$(@).on 'aj:form:section:added', (event, data)->
+		console.log 'aj:form:section:added'
+
+	$(@).on 'aj:form:submit', (event, data)->
+		console.log 'aj:form:submit'
+
+	$(@).on 'aj:form:ajax:before:submit', (event, data)->
+		console.log 'aj:form:ajax:before:submit'
+
+	$(@).on 'aj:form:ajax:submit:complete', (e, xhr)->
+		console.log 'aj:form:ajax:submit:complete'
+		xhr
+			.done (response)->
+				console.log 'SUBMIT RESPONSE'
+				console.log response
+			.fail (error)->
+				console.log 'SUBMIT ERROR'
+				console.log error
+
+
+	#Button event
+	$(@).on '$on:do:something', (event, data)->
+		console.log '$on:do:something'
+
+
 	
 	formbuilderOptions = 
 		columns : 2
@@ -25,6 +54,10 @@ jQuery(document).ready ($)->
 
 			hidden_field:
 				type: 'hidden'
+
+			do_something:
+				type: 'button'
+				triggerClick: '$on:do:something'
 
 			dob:
 				type: 'date'
