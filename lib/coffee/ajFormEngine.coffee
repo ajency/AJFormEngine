@@ -339,11 +339,16 @@ jQuery(document).ready ($)->
 						excluded		: ':hidden'
 						errorsContainer : (ParsleyField)-> $(ParsleyField.$element).closest '.form-group'
 		validator.destroy()
-		
 		validator.validate()
+		
 		if validator.isValid()
-			data = Backbone.Syphon.serialize @
-			$(form).trigger "aj:form:submit", data
+			
+			#excluding items hidden due to conditionals. 
+			hiddenItems = ajForm.formElement.find '[class^=ajForm-]:hidden input, [class^=ajForm-]:hidden select, [class^=ajForm-]:hidden textarea'
+			excludeItems = _.map hiddenItems, (item)-> $(item).attr 'name'
+		
+			data = Backbone.Syphon.serialize @, exclude: excludeItems
+			$(form).trigger "aj:form:submitted", data
 
 			if _.has(ajForm.options, 'submitUrl')
 				$.ajax 
