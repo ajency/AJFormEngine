@@ -6,9 +6,9 @@ jQuery(document).ready ($)->
 	$(@).on 'aj:form:section:added', (event, data)->
 		console.log 'aj:form:section:added'
 
-	$(@).on 'aj:form:submit', (event, data)->
-		console.log 'aj:form:submit'
-		console.log data
+	# $(@).on 'aj:form:submit', (event, data)->
+	# 	console.log 'aj:form:submit'
+	# 	console.log data
 
 	# $(@).on 'aj:form:ajax:before:submit', (event, data)->
 	# 	console.log 'aj:form:ajax:before:submit'

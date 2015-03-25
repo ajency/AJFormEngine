@@ -290,7 +290,8 @@ jQuery(document).ready ($)->
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
-		_.each divs, (el)->
+		ajForm.autoSuggest = []
+		_.each divs, (el, index)->
 			fieldName = $(el).attr 'data-id'
 			item= ajForm.getFieldOption fieldName
 			
@@ -299,11 +300,13 @@ jQuery(document).ready ($)->
 					opt= ajForm.formatOptions opt
 					data= id: opt.value, name: opt.label
 					
-			$(el).magicSuggest
-				ajaxConfig: method: 'GET'
-				maxSelection	: if item.maxSelection then item.maxSelection else false
-				data			: items
-				
+			magicsuggest = $(el).magicSuggest
+					ajaxConfig: method: 'GET'
+					maxSelection	: if item.maxSelection then item.maxSelection else false
+					data			: items
+
+			ajForm.autoSuggest[index] = field: fieldName, magicsuggest: magicsuggest
+		
 		divs
 		
 	ajForm.setAutogrowTextHeight = (el)->
@@ -327,6 +330,13 @@ jQuery(document).ready ($)->
 		_.each multiselectElements, (el)->
 			$(el).multiselect
 				includeSelectAllOption: true
+
+	ajForm.getAutosuggestJSON = (data)->
+		console.log data
+		console.log ajForm.autoSuggest
+		_.each $('.ms-ctn'), (el, index)->
+			console.log ajForm.autoSuggest[index].field
+
 	
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()
@@ -340,6 +350,7 @@ jQuery(document).ready ($)->
 		validator.validate()
 		if validator.isValid()
 			data = Backbone.Syphon.serialize @
+			ajForm.getAutosuggestJSON data
 			$(form).trigger "aj:form:submit", data
 
 			if _.has(ajForm.options, 'submitUrl')
