@@ -38,9 +38,12 @@ jQuery(document).ready ($)->
 		fields:					
 			role: 
 				type	: 'dropdown'
-				options	: ['lead', 'user']
-				default: 'user'
-				validation: required: true
+				options	: 
+					[{value: 'pvt_individual', label: 'Private Individual'}
+					{value: 'plc', label: 'Private Limited Company'}
+					]
+				default: 'plc'
+				# validation: required: true
 
 			buy_items:
 				type: 'multiselect_dropdown'
@@ -70,7 +73,7 @@ jQuery(document).ready ($)->
 
 			text1: 
 				type	: 'textbox'
-				validation: required: true
+				# validation: required: true
 
 			text2: 
 				type	: 'textbox'

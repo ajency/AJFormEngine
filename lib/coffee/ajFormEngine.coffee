@@ -354,6 +354,13 @@ jQuery(document).ready ($)->
 						if i is arrSize-1
 							obj["#{val}"] = selection
 
+
+	ajForm.filterDateFieldsForSerialization = ->
+		dateElements = $ '.picker__input'
+		_.each dateElements, (el)->
+			name = el.name
+			$('input[name="'+name+'_submit"]').attr 'name', name
+			
 	
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()
@@ -370,7 +377,8 @@ jQuery(document).ready ($)->
 			#excluding items hidden due to conditionals. 
 			hiddenItems = ajForm.formElement.find '[class^=ajForm-]:hidden input, [class^=ajForm-]:hidden select, [class^=ajForm-]:hidden textarea'
 			excludeItems = _.map hiddenItems, (item)-> $(item).attr 'name'
-		
+			
+			ajForm.filterDateFieldsForSerialization()
 			data = Backbone.Syphon.serialize @, exclude: excludeItems
 			ajForm.addAutoSuggestFieldsToSerializedData data
 			$(form).trigger "aj:form:submitted", data
