@@ -1,14 +1,16 @@
 jQuery(document).ready ($)->
 
+	window.WP_API_NONCE = ''
+
 	$(@).on 'aj:form:initialized', (event, data)->
 		console.log 'aj:form:initialized'
 
 	$(@).on 'aj:form:section:added', (event, data)->
 		console.log 'aj:form:section:added'
 
-	# $(@).on 'aj:form:submit', (event, data)->
-	# 	console.log 'aj:form:submit'
-	# 	console.log data
+	$(@).on 'aj:form:submitted', (event, data)->
+		console.log 'aj:form:submitted'
+		console.log data
 
 	# $(@).on 'aj:form:ajax:before:submit', (event, data)->
 	# 	console.log 'aj:form:ajax:before:submit'

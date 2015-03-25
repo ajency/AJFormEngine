@@ -290,6 +290,7 @@ jQuery(document).ready ($)->
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
+		ajForm.autoSuggest = []
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
 			item= ajForm.getFieldOption fieldName
@@ -299,13 +300,14 @@ jQuery(document).ready ($)->
 					opt= ajForm.formatOptions opt
 					data= id: opt.value, name: opt.label
 					
-			$(el).magicSuggest
-				ajaxConfig: method: 'GET'
+			magicSuggest = $(el).magicSuggest
 				maxSelection	: if item.maxSelection then item.maxSelection else false
 				data			: items
 				ajaxConfig		: 
 					method: 'GET'
 					headers: 'X-WP-Nonce': WP_API_NONCE if WP_API_NONCE
+
+			ajForm.autoSuggest.push field: fieldName, magicSuggest: magicSuggest
 					
 		divs
 		
@@ -330,6 +332,28 @@ jQuery(document).ready ($)->
 		_.each multiselectElements, (el)->
 			$(el).multiselect
 				includeSelectAllOption: true
+
+	
+	ajForm.addAutoSuggestFieldsToSerializedData = (data)->
+		autoSuggest = ajForm.autoSuggest
+		divs = $ '.ms-ctn'
+		_.each divs, (el, index)->
+			field = autoSuggest[index].field
+			selection = autoSuggest[index].magicSuggest.getSelection()
+			arr = field.split '['
+			arrSize = _.size arr
+			if !$(el).is(':hidden')
+				if _.size(arr) is 1
+					data["#{arr[0]}"] = selection
+				else
+					obj = data["#{arr[0]}"]
+					_.each arr, (val, i)->
+						val = val.replace ']', ''
+						if i > 0
+							if obj["#{val}"]? then obj = obj["#{val}"] else obj["#{val}"] = {}
+						if i is arrSize-1
+							obj["#{val}"] = selection
+
 	
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()
@@ -348,6 +372,7 @@ jQuery(document).ready ($)->
 			excludeItems = _.map hiddenItems, (item)-> $(item).attr 'name'
 		
 			data = Backbone.Syphon.serialize @, exclude: excludeItems
+			ajForm.addAutoSuggestFieldsToSerializedData data
 			$(form).trigger "aj:form:submitted", data
 
 			if _.has(ajForm.options, 'submitUrl')
