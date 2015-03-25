@@ -8,19 +8,20 @@ jQuery(document).ready ($)->
 
 	$(@).on 'aj:form:submit', (event, data)->
 		console.log 'aj:form:submit'
+		console.log data
 
-	$(@).on 'aj:form:ajax:before:submit', (event, data)->
-		console.log 'aj:form:ajax:before:submit'
+	# $(@).on 'aj:form:ajax:before:submit', (event, data)->
+	# 	console.log 'aj:form:ajax:before:submit'
 
-	$(@).on 'aj:form:ajax:submit:complete', (e, xhr)->
-		console.log 'aj:form:ajax:submit:complete'
-		xhr
-			.done (response)->
-				console.log 'SUBMIT RESPONSE'
-				console.log response
-			.fail (error)->
-				console.log 'SUBMIT ERROR'
-				console.log error
+	# $(@).on 'aj:form:ajax:submit:complete', (e, xhr)->
+	# 	console.log 'aj:form:ajax:submit:complete'
+	# 	xhr
+	# 		.done (response)->
+	# 			console.log 'SUBMIT RESPONSE'
+	# 			console.log response
+	# 		.fail (error)->
+	# 			console.log 'SUBMIT ERROR'
+	# 			console.log error
 
 
 	#Button event
@@ -122,6 +123,7 @@ jQuery(document).ready ($)->
 						validation: type: 'email'
 
 					phone		: type	: 'textbox'
+
 
 			partnership:
 				type: 'section',

@@ -56,7 +56,7 @@ jQuery(document).ready ($)->
 				
 				if typeof fieldFunction is 'function'
 					field.label = s.humanize name if not field.label
-					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
+					field.label += ' <i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
 					form += '<div class="form-group fly-group">'
 					form += '<label class="fly-label classic">'+field.label+'</label>' if !_.contains(['hidden', 'button'], field.type)
 					form += fieldFunction field,name,secondaryName
