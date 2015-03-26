@@ -165,7 +165,7 @@ jQuery(document).ready ($)->
 	ajForm.get_textbox=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		value = if field.value then field.value else ''
-		"<input value='#{value}' type='text' #{ajForm.validations(field.validation)} class='form-control input-sm' name=#{name}>"
+		"<input value='#{value}' type='text' #{ajForm.validations(field.validation)} #{ajForm.attributes(field.attributes)} class='form-control input-sm' name=#{name}>"
 		
 	ajForm.get_date=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
@@ -266,8 +266,17 @@ jQuery(document).ready ($)->
 	ajForm.preSelected = (field, option)->
 		selected = ''
 		if _.has(field, 'default')
-			if field.default is option
-				selected = if field.type is 'dropdown' then 'selected' else 'checked'
+			switch field.type
+				when 'dropdown'
+					if (_.isObject(option) and field.default is option.value) or (field.default is option)
+						selected = 'selected'
+				when 'radio'
+					if (_.isObject(option) and field.default is option.value) or (field.default is option)
+						selected = 'checked'
+				when 'checkbox'
+					if (_.isObject(option) and _.contains(field.default, option.value)) or _.contains(field.default, option)
+						selected = 'checked'
+
 		selected
 
 	ajForm.attributes = (attrs)->
@@ -296,6 +305,7 @@ jQuery(document).ready ($)->
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
+		ajForm.autoSuggest = []
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
 			item= ajForm.getFieldOption fieldName
@@ -305,13 +315,14 @@ jQuery(document).ready ($)->
 					opt= ajForm.formatOptions opt
 					data= id: opt.value, name: opt.label
 					
-			$(el).magicSuggest
-				ajaxConfig: method: 'GET'
+			magicSuggest = $(el).magicSuggest
 				maxSelection	: if item.maxSelection then item.maxSelection else false
 				data			: items
 				ajaxConfig		: 
 					method: 'GET'
 					headers: 'X-WP-Nonce': WP_API_NONCE if WP_API_NONCE
+
+			ajForm.autoSuggest.push field: fieldName, magicSuggest: magicSuggest
 					
 		divs
 		
@@ -336,6 +347,35 @@ jQuery(document).ready ($)->
 		_.each multiselectElements, (el)->
 			$(el).multiselect
 				includeSelectAllOption: true
+
+	
+	ajForm.addAutoSuggestFieldsToSerializedData = (data)->
+		autoSuggest = ajForm.autoSuggest
+		divs = $ '.ms-ctn'
+		_.each divs, (el, index)->
+			field = autoSuggest[index].field
+			selection = autoSuggest[index].magicSuggest.getSelection()
+			arr = field.split '['
+			arrSize = _.size arr
+			if !$(el).is(':hidden')
+				if _.size(arr) is 1
+					data["#{arr[0]}"] = selection
+				else
+					obj = data["#{arr[0]}"]
+					_.each arr, (val, i)->
+						val = val.replace ']', ''
+						if i > 0
+							if obj["#{val}"]? then obj = obj["#{val}"] else obj["#{val}"] = {}
+						if i is arrSize-1
+							obj["#{val}"] = selection
+
+
+	ajForm.filterDateFieldsForSerialization = ->
+		dateElements = $ '.picker__input'
+		_.each dateElements, (el)->
+			name = el.name
+			$('input[name="'+name+'_submit"]').attr 'name', name
+			
 	
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()
@@ -352,8 +392,10 @@ jQuery(document).ready ($)->
 			#excluding items hidden due to conditionals. 
 			hiddenItems = ajForm.formElement.find '[class^=ajForm-]:hidden input, [class^=ajForm-]:hidden select, [class^=ajForm-]:hidden textarea'
 			excludeItems = _.map hiddenItems, (item)-> $(item).attr 'name'
-		
+			
+			ajForm.filterDateFieldsForSerialization()
 			data = Backbone.Syphon.serialize @, exclude: excludeItems
+			ajForm.addAutoSuggestFieldsToSerializedData data
 			$(form).trigger "aj:form:submitted", data
 
 			if _.has(ajForm.options, 'submitUrl')

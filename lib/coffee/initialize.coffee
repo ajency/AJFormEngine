@@ -1,26 +1,29 @@
 jQuery(document).ready ($)->
 
+	window.WP_API_NONCE = ''
+
 	$(@).on 'aj:form:initialized', (event, data)->
 		console.log 'aj:form:initialized'
 
 	$(@).on 'aj:form:section:added', (event, data)->
 		console.log 'aj:form:section:added'
 
-	$(@).on 'aj:form:submit', (event, data)->
-		console.log 'aj:form:submit'
+	$(@).on 'aj:form:submitted', (event, data)->
+		console.log 'aj:form:submitted'
+		console.log data
 
-	$(@).on 'aj:form:ajax:before:submit', (event, data)->
-		console.log 'aj:form:ajax:before:submit'
+	# $(@).on 'aj:form:ajax:before:submit', (event, data)->
+	# 	console.log 'aj:form:ajax:before:submit'
 
-	$(@).on 'aj:form:ajax:submit:complete', (e, xhr)->
-		console.log 'aj:form:ajax:submit:complete'
-		xhr
-			.done (response)->
-				console.log 'SUBMIT RESPONSE'
-				console.log response
-			.fail (error)->
-				console.log 'SUBMIT ERROR'
-				console.log error
+	# $(@).on 'aj:form:ajax:submit:complete', (e, xhr)->
+	# 	console.log 'aj:form:ajax:submit:complete'
+	# 	xhr
+	# 		.done (response)->
+	# 			console.log 'SUBMIT RESPONSE'
+	# 			console.log response
+	# 		.fail (error)->
+	# 			console.log 'SUBMIT ERROR'
+	# 			console.log error
 
 
 	#Button event
@@ -35,9 +38,17 @@ jQuery(document).ready ($)->
 		fields:					
 			role: 
 				type	: 'dropdown'
-				options	: ['lead', 'user']
-				default: 'user'
-				validation: required: true
+				options	: 
+					[{value: 'pvt_individual', label: 'Private Individual'}
+					{value: 'plc', label: 'Private Limited Company'}
+					]
+				default: 'plc'
+				# validation: required: true
+
+			role1: 
+				type: 'dropdown'
+				options: ['a', 'b']
+				default: 'b'
 
 			buy_items:
 				type: 'multiselect_dropdown'
@@ -67,7 +78,7 @@ jQuery(document).ready ($)->
 
 			text1: 
 				type	: 'textbox'
-				validation: required: true
+				# validation: required: true
 
 			text2: 
 				type	: 'textbox'
@@ -102,8 +113,15 @@ jQuery(document).ready ($)->
 
 			mood:
 				type: 'checkbox'
-				options: ['happy', 'sad', 'angry']
-				default: 'angry'
+				options: ['happy', 'sad', 'angry', 'pissed', 'mad']
+				# options	: 
+				# 	[{value: 'happy', label: 'Happy'}
+				# 	{value: 'sad', label: 'Sad'}
+				# 	{value: 'angry', label: 'Angry'}
+				# 	{value: 'pissed', label: 'Pissed'}
+				# 	{value: 'mad', label: 'Mad'}
+				# 	]
+				default: ['angry', 'sad', 'mad']
 
 			business_type:
 				type	: 'dropdown'
@@ -122,6 +140,7 @@ jQuery(document).ready ($)->
 						validation: type: 'email'
 
 					phone		: type	: 'textbox'
+
 
 			partnership:
 				type: 'section',
