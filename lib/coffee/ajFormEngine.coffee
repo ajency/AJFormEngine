@@ -6,7 +6,7 @@ jQuery(document).ready ($)->
 	
 	ajForm = {}
 	
-	$.AJFormEngine =(element, opts)->
+	$.AJFormEngine =(element, opts, data=[])->
 		
 		ajForm.options = opts
 		form = '<form>'
@@ -14,6 +14,8 @@ jQuery(document).ready ($)->
 		form += ajForm.get_submit_button()
 		form += '</form>'
 		element.append form
+		
+		Backbone.Syphon.deserialize(element.find('form')[0], data) if not _.isEmpty data
 		
 		ajForm.formElement= formElement = element.find 'form'
 		
@@ -25,6 +27,10 @@ jQuery(document).ready ($)->
 		$(formElement.find('.autogrow')).bind 'keyup', ajForm.autoGrowText
 		$(formElement.find('a.add-section')).bind 'click', ajForm.addSection
 		$(ajForm.formElement).trigger "aj:form:initialized", ajForm
+		
+		#trigger change event on all events so that if any conditions are there they'll get triggered
+		$(ajForm.formElement.find('input,select')).trigger 'change' if not _.isEmpty data
+		
 		form
 	
 	#secondary_id is used incase of repeatable sections. gives the section a common index
@@ -417,15 +423,21 @@ jQuery(document).ready ($)->
 			_.each fieldConditions, (c,index)->
 				
 				ele = ajForm.findFieldElement index
+				eleVal = ele.val()
+				
+				#get radio button's selected value
+				eleVal = $("input[name="+ele.attr('name')+"]:checked").val() if ele.attr('type') is 'radio' 
+				#TODO: handle checkboxes conditional
+				
 				switch (c.operator)
 					when '='
-						matchCount++ if ele.val() is c.value
+						matchCount++ if eleVal is c.value
 					when '>'
-						matchCount++ if parseInt(ele.val()) > parseInt c.value
+						matchCount++ if parseInt(eleVal) > parseInt c.value
 					when '<'
-						matchCount++ if parseInt(ele.val()) < parseInt c.value
+						matchCount++ if parseInt(eleVal) < parseInt c.value
 					when 'like'
-						matchCount++ if s.contains ele.val(),c.value
+						matchCount++ if s.contains eleVal,c.value
 						
 				if matchCount is requiredMatches
 					success= true
