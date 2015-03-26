@@ -45,6 +45,11 @@ jQuery(document).ready ($)->
 				default: 'plc'
 				# validation: required: true
 
+			role1: 
+				type: 'dropdown'
+				options: ['a', 'b']
+				default: 'b'
+
 			buy_items:
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
@@ -108,8 +113,15 @@ jQuery(document).ready ($)->
 
 			mood:
 				type: 'checkbox'
-				options: ['happy', 'sad', 'angry']
-				default: 'angry'
+				options: ['happy', 'sad', 'angry', 'pissed', 'mad']
+				# options	: 
+				# 	[{value: 'happy', label: 'Happy'}
+				# 	{value: 'sad', label: 'Sad'}
+				# 	{value: 'angry', label: 'Angry'}
+				# 	{value: 'pissed', label: 'Pissed'}
+				# 	{value: 'mad', label: 'Mad'}
+				# 	]
+				default: ['angry', 'sad', 'mad']
 
 			business_type:
 				type	: 'dropdown'

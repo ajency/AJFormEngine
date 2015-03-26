@@ -260,8 +260,17 @@ jQuery(document).ready ($)->
 	ajForm.preSelected = (field, option)->
 		selected = ''
 		if _.has(field, 'default')
-			if field.default is option
-				selected = if field.type is 'dropdown' then 'selected' else 'checked'
+			switch field.type
+				when 'dropdown'
+					if (_.isObject(option) and field.default is option.value) or (field.default is option)
+						selected = 'selected'
+				when 'radio'
+					if (_.isObject(option) and field.default is option.value) or (field.default is option)
+						selected = 'checked'
+				when 'checkbox'
+					if (_.isObject(option) and _.contains(field.default, option.value)) or _.contains(field.default, option)
+						selected = 'checked'
+
 		selected
 
 	ajForm.attributes = (attrs)->
