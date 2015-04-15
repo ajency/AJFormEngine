@@ -35,6 +35,7 @@ jQuery(document).ready ($)->
 	formbuilderOptions = 
 		columns : 2
 		submitUrl: '' 
+		nav:true
 		fields:					
 			role: 
 				type	: 'dropdown'
@@ -54,74 +55,80 @@ jQuery(document).ready ($)->
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
 
-			textarea:
-				type: 'textarea'
-				attributes: ['disabled']
+			personal_details:
+				type: 'section'
+				fields:
+					textarea:
+						type: 'textarea'
+						attributes: ['disabled']
 
-			random_label:
-				type: 'label'
-				# html: 'Some random label' #Plain text
-				html: '<p><b>Some random text</b></p>' #Html
+					random_label:
+						type: 'label'
+						# html: 'Some random label' #Plain text
+						html: '<p><b>Some random text</b></p>' #Html
 
-			hidden_field:
-				type: 'hidden'
+					hidden_field:
+						type: 'hidden'
 
-			do_something:
-				type: 'button'
-				triggerClick: '$on:do:something'
+					do_something:
+						type: 'button'
+						triggerClick: '$on:do:something'
 
-			dob:
-				type: 'date'
-				label: 'date of birth'
-				min: '2015/03/05'
-				max: 'today'
+					dob:
+						type: 'date'
+						label: 'date of birth'
+						min: '2015/03/05'
+						max: 'today'
 
-			text1: 
-				type	: 'textbox'
-				# validation: required: true
+					text1: 
+						type	: 'textbox'
+						# validation: required: true
 
-			text2: 
-				type	: 'textbox'
-				conditionals:
-					type: 'all'
-					display: 'show'
-					conditions: 
-						text1: 
-							operator: 'like'
-							value	: 'one'
-						status: 
-							operator: '='
-							value	: 'active'
+					text2: 
+						type	: 'textbox'
+						conditionals:
+							type: 'all'
+							display: 'show'
+							conditions: 
+								text1: 
+									operator: 'like'
+									value	: 'one'
+								status: 
+									operator: '='
+									value	: 'active'
 
-			status: 
-				type	: 'autosuggest'
-				options	: ['active','suspended']
-				
-			primary_advisor: 
-				type	: 'autosuggest'
-				validation: required: true
-				options : ['Network Manager','Firm Principal','Firm Management','Network Firm','Simply Firm','Phoenix','Network Manager2']
+					status: 
+						type	: 'autosuggest'
+						options	: ['active','suspended']
+			
+			other_details:
+				type: 'section'
+				fields:
+					primary_advisor: 
+						type	: 'autosuggest'
+						validation: required: true
+						options : ['Network Manager','Firm Principal','Firm Management','Network Firm','Simply Firm','Phoenix','Network Manager2']
 
-			cities: 
-				type	: 'autosuggest'
-				optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
-				
-			gender:
-				type	: 'radio'
-				options : ['male','female']
-				default: 'male'
+				cities: 
+					type	: 'autosuggest'
+					optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 
-			mood:
-				type: 'checkbox'
-				options: ['happy', 'sad', 'angry', 'pissed', 'mad']
-				# options	: 
-				# 	[{value: 'happy', label: 'Happy'}
-				# 	{value: 'sad', label: 'Sad'}
-				# 	{value: 'angry', label: 'Angry'}
-				# 	{value: 'pissed', label: 'Pissed'}
-				# 	{value: 'mad', label: 'Mad'}
-				# 	]
-				default: ['angry', 'sad', 'mad']
+				gender:
+					type	: 'radio'
+					options : ['male','female']
+					default: 'male'
+
+				mood:
+					type: 'checkbox'
+					options: ['happy', 'sad', 'angry', 'pissed', 'mad']
+					# options	: 
+					# 	[{value: 'happy', label: 'Happy'}
+					# 	{value: 'sad', label: 'Sad'}
+					# 	{value: 'angry', label: 'Angry'}
+					# 	{value: 'pissed', label: 'Pissed'}
+					# 	{value: 'mad', label: 'Mad'}
+					# 	]
+					default: ['angry', 'sad', 'mad']
 
 			business_type:
 				type	: 'dropdown'

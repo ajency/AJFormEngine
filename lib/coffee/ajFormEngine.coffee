@@ -4,21 +4,75 @@
 
 jQuery(document).ready ($)->
 	
+	`window.scrollToDivScript = function(){
+		$(window).scroll(function(){
+			var window_top = $(window).scrollTop() + 12; 
+		   // the "12" should equal the margin-top value for nav.stickydiv
+		   div = $('.ajFormNav #checkdiv')
+		   if(div.length>0){
+				var div_top = div.offset().top;
+				if (window_top >= div_top) {
+						$('.ajFormNav .bs-docs-sidebar').addClass('stickydiv');
+					} else {
+						$('.ajFormNav .bs-docs-sidebar').removeClass('stickydiv');
+					}
+		   }
+		});
+		
+		$(document).on("scroll", onScroll);
+
+		$('.ajFormNav .nav li').on('click', function (e) {
+		  e.preventDefault();
+			$(document).off("scroll");
+			$('.ajFormNav .sub-menu ul li').removeClass('active');
+			$(this).addClass('active');
+			 var target = $(this).find('a').attr('section-id'), menu = target;
+			$target = $(".ajForm section[id='"+target+"']");
+		   $('html, body').stop().animate({
+				'scrollTop': $target.offset().top+2
+			}, 600, 'swing', function () {
+				$(document).on("scroll", onScroll);
+			});
+		});
+		
+		var onScroll = function(event) {
+            var scrollPos = $(document).scrollTop();
+            $('.ajFormNav .nav li').each(function () {
+                var currLink = $(this);
+				target = currLink.find('a').attr("section-id")
+				var refElement = $("section[id='"+target+"']");
+                if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+                    $('.nav li').removeClass("active");
+                    currLink.addClass("active");
+                }
+                else{
+                    currLink.removeClass("active");
+                }
+            });
+			}
+        }`
+	
+	
 	ajForm = {}
 	
 	$.AJFormEngine =(element, opts, data=[])->
 		
+		
+		ajForm.autoSuggest = []
+		ajForm.formData= data
 		ajForm.options = opts
-		form = '<form>'
+		form = '<form class="ajForm">'
 		form += ajForm.generateFields opts.fields, opts.columns
 		form += ajForm.get_submit_button()
 		form += '</form>'
-		element.append form
+		
+		ajForm.appendForm form, element
 		
 		Backbone.Syphon.deserialize(element.find('form')[0], data) if not _.isEmpty data
 		
 		ajForm.formElement= formElement = element.find 'form'
 		
+		ajForm.fillFormSections data if not _.isEmpty data
 		ajForm.bindConditions()
 		
 		ajForm.triggerFieldPlugins element
@@ -26,11 +80,15 @@ jQuery(document).ready ($)->
 		$(formElement).bind 'submit', ajForm.handleFormSubmit
 		$(formElement.find('.autogrow')).bind 'keyup', ajForm.autoGrowText
 		$(formElement.find('a.add-section')).bind 'click', ajForm.addSection
+		
 		$(ajForm.formElement).trigger "aj:form:initialized", ajForm
 		
 		#trigger change event on all events so that if any conditions are there they'll get triggered
 		$(ajForm.formElement.find('input,select')).trigger 'change' if not _.isEmpty data
 		
+		ajForm.addSideNav(element) if ajForm.options.nav
+		$('body').scrollspy target: '.bs-docs-sidebar'
+		window.scrollToDivScript()
 		form
 	
 	#secondary_id is used incase of repeatable sections. gives the section a common index
@@ -41,7 +99,10 @@ jQuery(document).ready ($)->
 			columns = 1 if not columns
 			columnClass = 12 / columns
 			
-			if field.type in ['section', 'repeatable_section', 'html_section']
+			if field.type is 'hidden'
+				form += ajForm.get_hidden field,name,secondaryName
+				
+			else if field.type in ['section', 'repeatable_section', 'html_section']
 				if col isnt 0
 					col=0
 					form += '</div>' 
@@ -61,10 +122,10 @@ jQuery(document).ready ($)->
 				fieldFunction= ajForm['get_'+field.type]
 				
 				if typeof fieldFunction is 'function'
-					field.label = s.humanize name if not field.label
+					field.label = s.humanize name if field.label isnt false and not field.label
 					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
 					form += '<div class="form-group fly-group">'
-					form += '<label class="fly-label classic">'+field.label+'</label>' if !_.contains(['hidden', 'button'], field.type)
+					form += '<label class="fly-label classic">'+field.label+'</label>' if field.label and !_.contains(['hidden', 'button'], field.type)
 					form += fieldFunction field,name,secondaryName
 					form += '</div>'
 				form += '</div>'
@@ -89,15 +150,16 @@ jQuery(document).ready ($)->
 		else
 			section.label= s.titleize s.humanize sectionName if not section.label
 			title= '<h5 class="thin">'+section.label+'</h5>'
-			sectionClass = ' well'
+			sectionClass = ' section-div'
 		
 		columns = section.columns if section.columns
 		secondaryName = if secondaryName then "#{secondaryName}[#{sectionName}]" else sectionName
+		sectionName = secondaryName if secondaryName
 		secondaryName += "[#{ajForm.makeid()}]" if section.type is 'repeatable_section'
 		
 		hideElement = if section.conditionals then ' style="display:none" ' else ''
 		
-		html = '<section class="ajForm-'+sectionName+' '+sectionName+'" '+hideElement+'>
+		html = '<section id="'+secondaryName+'" data-type="'+section.type+'" data-name="'+sectionName+'" class="ajForm-'+sectionName+'" '+hideElement+'>
 				<div class="'+sectionClass+'">'+title
 				
 		html +='<div class="row"><div class="col-md-12">'
@@ -114,15 +176,16 @@ jQuery(document).ready ($)->
 	ajForm.addSection = (evt)->
 		button = $(evt.currentTarget)
 		sectionName = button.attr 'data-section'
-		section = $(ajForm.formElement).find('.' + sectionName).first().clone()
-		section.find('textarea, select').val ''
+		sectionEl = $(ajForm.formElement).find('section[data-name="'+sectionName+'"]')
+		addedSection = sectionEl.first().clone()
+		addedSection.find('textarea, select').val ''
 
-		_.each section.find('input'), (el)->
+		_.each addedSection.find('input'), (el)->
 			$(el).val('') if $(el).attr('type') isnt 'button' #Don't clear the button value
 
-		$(ajForm.formElement).find('.' + sectionName).last().after section
+		sectionEl.last().after addedSection
 		newName = "#{ajForm.makeid()}"
-		section.find('input, textarea, select').each (index, ele)=>
+		addedSection.find('input, textarea, select').each (index, ele)=>
 			name = $(ele).attr 'name'
 			array = name.split('[') if name
 			arraySize=if name then _.size(array) else 0
@@ -132,13 +195,8 @@ jQuery(document).ready ($)->
 				completeName = name.replace nameToReplace, newName
 				$(ele).attr 'name', completeName
 				
-		addedSection = $(ajForm.formElement).find('.' + sectionName).last()
-		addedSection.append '<div class="form-group clearfix">
-				<a class="remove-section btn btn-link pull-right">Delete</a>
-			</div>'
-		
-		$(ajForm.formElement).find('a.remove-section').bind 'click', ajForm.removeSection
-		
+		$(addedSection).removeClass 'hidden'		
+		ajForm.addDeleteSectionLink addedSection
 		ajForm.cleanupAddedSection addedSection		
 		ajForm.triggerFieldPlugins addedSection
 		
@@ -153,8 +211,20 @@ jQuery(document).ready ($)->
 		text
 		
 	ajForm.removeSection = (evt)->
-		$(evt.target).closest('section').fadeOut 'fast'
+		sectionName = $(evt.target).closest('section').attr 'data-name'
 		
+		if $("section[data-name='#{sectionName}']:visible").length>1
+			$(evt.target).closest('section').fadeOut 'fast'
+		else
+			alert "Cannot delete"
+	
+	ajForm.addDeleteSectionLink =(sectionEl)->
+		sectionEl.append '<div class="form-group clearfix">
+				<a class="remove-section btn btn-link pull-right">Delete</a>
+			</div>'
+		
+		$(sectionEl).find('a.remove-section').bind 'click', ajForm.removeSection
+	
 	ajForm.get_submit_button=->
 		'<div class="row">
 			<div class="col-md-12">
@@ -178,7 +248,8 @@ jQuery(document).ready ($)->
 		html += '<option value="">'+selectLabel+'</option>'
 		_.each field.options, (option)=>
 			opt = ajForm.formatOptions option
-			html += '<option value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>'+opt.label+'</option>'
+			if opt
+				html += '<option value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>'+opt.label+'</option>'
 		html += '</select>'
 
 	ajForm.get_radio=(field,name,secondaryName)->
@@ -205,7 +276,8 @@ jQuery(document).ready ($)->
 		
 	ajForm.get_autosuggest=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
-		'<div data-id="'+name+'" class="magicsuggest" '+ajForm.attributes(field.attributes)+'></div>'
+		'<div data-id="'+name+'" class="magicsuggest" '+ajForm.attributes(field.attributes)+'></div>
+		<input type="hidden" name="'+name+'" />'
 		
 	ajForm.get_textarea=(field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
@@ -248,6 +320,31 @@ jQuery(document).ready ($)->
 		field.label = s.titleize s.humanize name if not field.label
 		'<input type="button" value="'+field.label+'" name="'+name+'" '+ajForm.attributes(field.attributes)+' class="btn btn-primary" />'
 	
+	ajForm.get_geoSearch = (field, name, secondaryName)->
+		name = "#{secondaryName}[#{name}]" if secondaryName
+		'<div class="geoSearch" id="geoSearch"></div>'
+		
+	ajForm.get_address= (field, name, secondaryName)->
+		field.label = 'Address'
+		field.type	= 'repeatable_section'
+		field.fields=
+			type			: type : 'dropdown', options:['meeting','residential','office']
+			address			: type : 'textarea'
+			country			: type : 'textbox', vallue:'United Kingdom'
+			region			: type : 'textbox'
+			city			: type : 'textbox'
+			postcode		: label: 'Postal Code', type : 'textbox'
+			notes			: type : 'textarea'
+			lat				: type : 'hidden'
+			lng				: type : 'hidden'
+			geoSearch		: 
+				label	: false
+				type	: 'section'
+				columns	:1
+				fields	: geoSearch : type: 'geoSearch', label: false
+			
+		ajForm.generateFields address:field, 2
+		
 	ajForm.validations=(validation)->
 		validation_str = ''
 
@@ -259,7 +356,7 @@ jQuery(document).ready ($)->
 	ajForm.formatOptions=(opt)->
 		if typeof opt in ['string', 'number']
 			label 	= s.titleize s.humanize opt
-			value 	= s.underscored opt
+			value 	= opt
 			opt = {label: label, value: value}
 		opt
 
@@ -269,13 +366,13 @@ jQuery(document).ready ($)->
 			switch field.type
 				when 'dropdown'
 					if (_.isObject(option) and field.default is option.value) or (field.default is option)
-						selected = 'selected'
+						selected = 'selected="selected"'
 				when 'radio'
 					if (_.isObject(option) and field.default is option.value) or (field.default is option)
-						selected = 'checked'
+						selected = 'checked="checked"'
 				when 'checkbox'
 					if (_.isObject(option) and _.contains(field.default, option.value)) or _.contains(field.default, option)
-						selected = 'checked'
+						selected = 'checked="checked"'
 
 		selected
 
@@ -305,7 +402,6 @@ jQuery(document).ready ($)->
 			
 	ajForm.addAutoSuggest=(element)->
 		divs= element.find '.magicsuggest'
-		ajForm.autoSuggest = []
 		_.each divs, (el)->
 			fieldName = $(el).attr 'data-id'
 			item= ajForm.getFieldOption fieldName
@@ -315,16 +411,45 @@ jQuery(document).ready ($)->
 					opt= ajForm.formatOptions opt
 					data= id: opt.value, name: opt.label
 					
+			fieldValue = ajForm.getFormDataItem fieldName
+			
+			preselected =[]
+			if fieldValue and _.size(fieldValue)>0
+				preselected = [fieldValue.id] if fieldValue.id? 
+			
+			preselected = _.compact preselected
+			
+			if _.isEmpty(preselected) and not _.isEmpty _.compact fieldValue
+				preselected = _.pluck fieldValue, 'id' 
+				preselected = fieldValue if _.isEmpty _.compact preselected
+			
 			magicSuggest = $(el).magicSuggest
 				maxSelection	: if item.maxSelection then item.maxSelection else false
 				data			: items
+				value			: preselected if not _.isEmpty _.compact preselected
 				ajaxConfig		: 
 					method: 'GET'
 					headers: 'X-WP-Nonce': WP_API_NONCE if WP_API_NONCE
-
+					
+			$(magicSuggest).on 'selectionchange', (e,m)->
+				$(ajForm.formElement).find "input[name='#{fieldName}']"
+				.val JSON.stringify this.getValue()
+					
 			ajForm.autoSuggest.push field: fieldName, magicSuggest: magicSuggest
 					
 		divs
+	
+	ajForm.getFormDataItem =(fieldName)->
+		nameArr= fieldName.split '['
+		str= ''
+		for item in nameArr
+			i = s.replaceAll item, ']', ''
+			str += "['#{i}']"
+			evalStr= 'ajForm.formData'+str
+			break if _.isUndefined eval evalStr
+
+		evalStr= 'ajForm.formData'+str
+		item = eval(evalStr)
 		
 	ajForm.setAutogrowTextHeight = (el)->
 		elements= el.find '.autogrow'
@@ -348,35 +473,12 @@ jQuery(document).ready ($)->
 			$(el).multiselect
 				includeSelectAllOption: true
 
-	
-	ajForm.addAutoSuggestFieldsToSerializedData = (data)->
-		autoSuggest = ajForm.autoSuggest
-		divs = $ '.ms-ctn'
-		_.each divs, (el, index)->
-			field = autoSuggest[index].field
-			selection = autoSuggest[index].magicSuggest.getSelection()
-			arr = field.split '['
-			arrSize = _.size arr
-			if !$(el).is(':hidden')
-				if _.size(arr) is 1
-					data["#{arr[0]}"] = selection
-				else
-					obj = data["#{arr[0]}"]
-					_.each arr, (val, i)->
-						val = val.replace ']', ''
-						if i > 0
-							if obj["#{val}"]? then obj = obj["#{val}"] else obj["#{val}"] = {}
-						if i is arrSize-1
-							obj["#{val}"] = selection
-
-
 	ajForm.filterDateFieldsForSerialization = ->
 		dateElements = $ '.picker__input'
 		_.each dateElements, (el)->
 			name = el.name
 			$('input[name="'+name+'_submit"]').attr 'name', name
 			
-	
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()
 		form = $(e.target).closest 'form'
@@ -395,7 +497,7 @@ jQuery(document).ready ($)->
 			
 			ajForm.filterDateFieldsForSerialization()
 			data = Backbone.Syphon.serialize @, exclude: excludeItems
-			ajForm.addAutoSuggestFieldsToSerializedData data
+			
 			$(form).trigger "aj:form:submitted", data
 
 			if _.has(ajForm.options, 'submitUrl')
@@ -528,6 +630,7 @@ jQuery(document).ready ($)->
 		ajForm.setAutogrowTextHeight element
 		ajForm.addMultiselectDropdown element
 		$(element).find('.richtext').wysihtml5()
+		ajForm.addGeoSearch element
 		ajForm.bindButtonEvents element
 
 	#remove unnecessary dom elements from the cloned section
@@ -535,4 +638,165 @@ jQuery(document).ready ($)->
 		$(addedSection).find '.multiselect'
 		.closest '.btn-group'
 		.remove()
+				
+	ajForm.fillFormSections =(data)=>
+		
+		repeatableSections = $(ajForm.formElement).find 'section[data-type="repeatable_section"]'
+		
+		_.each repeatableSections, (section)->
+			dataName = $(section).attr 'data-name'
+			dataRecords = ajForm.getFormDataItem dataName
+			
+			#show an empty section if no data entered for that section
+			dataRecords= [{}] if _.isEmpty dataRecords
+			_.each dataRecords, (record, key)=>
+				sectionEle = $(section).first().clone()
+				sectionEle.find('input, textarea, select').val ''
+				sectionEle.find('input, textarea, select').each (index, ele)=>
+					field_name = $(ele).attr 'name'
+					name =s.ltrim field_name, dataName
+					array = name.split '['
+					if array[0]
+						nameToReplace = array[0].split(']').shift()
+					else
+						nameToReplace = array[1].split(']').shift()
+					if nameToReplace 
+						completeName = field_name.replace nameToReplace, key
+						$(ele).attr 'name', completeName
+						property = name.split('[').pop().slice(0,-1)
+						$(ele).val record[property]
+					else
+						$(ele).val key
 
+				ajForm.addDeleteSectionLink sectionEle
+
+				$(section).last().after sectionEle
+			
+			$(section).first().addClass 'hidden' if dataRecords
+			
+	ajForm.appendForm = (form,element)->
+		if ajForm.options.nav
+			html = '<div class="row">
+							<div class="ajFormNav col-sm-3">
+								<div id="checkdiv"></div>
+								<nav class="bs-docs-sidebar sub-menu">
+									<ul class="sub-menu-links nav"></ul>
+								</nav>
+							</div>
+							<div class="col-sm-9">
+								<div id="formSteps">'+form+'</div>
+							</div>
+						</div>'
+			element.append html
+		else
+			element.append form
+			
+		
+	ajForm.addSideNav =(element)->
+		
+		items=[];
+		
+		fields =ajForm.options.fields
+		_.each fields,(field,fieldName)->
+			ajForm.getNavItem field,fieldName,items
+		
+		element.find '.sub-menu-links'
+		.append items.join ''
+				
+	ajForm.getNavItem =(field,fieldName,items=[])->
+	
+		if field.type in ['section','repeatable_section'] and not field.hideNav
+			if $(ajForm.formElement).find("section[data-name='#{fieldName}']").is ':visible' 
+				label = if field.label then field.label else s.titleize(s.humanize(fieldName))
+				items.push "<li><a section-id='#{fieldName}'>#{label}</a>"
+				
+				items.push "<ul class='nav nav-stacked'>" if _.findWhere(field.fields,('type': 'section')) and not field.hideNav
+				_.each field.fields,(field, fName)->
+					ajForm.getNavItem field,"#{fieldName}[#{fName}]",items
+				items.push "</ul>" if _.findWhere(field.fields,('type': 'section')) and not field.hideNav
+				
+				items.push "</li>"
+		items
+		
+	ajForm.addGeoSearch=(element)->
+		
+		geoSearchEls= element.find '.geoSearch'
+		
+		_.each geoSearchEls, (el)->
+			section		= $(el).closest 'section[data-name="address"]'
+			lngEl		= section.find 'input[name$="[lng]"]'
+			latEl		= section.find 'input[name$="[lat]"]'
+			addressEl	= section.find 'textarea[name$="[address]"]'
+			countryEl	= section.find 'input[name$="[country]"]'
+			regionEl	= section.find 'input[name$="[region]"]'
+			cityEl		= section.find 'input[name$="[city]"]'
+			postcodeEl	= section.find 'input[name$="[postcode]"]'
+			
+			if( lngEl.val() and latEl.val() ) 
+				latlng = new google.maps.LatLng(latEl.val(),lngEl.val());
+			else
+				latlng = new google.maps.LatLng(51.49506473014368,-0.087890625);
+
+			options = {
+				zoom: 6,
+				center: latlng,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+
+			map = new google.maps.Map(el, options);
+
+			geocoder = new google.maps.Geocoder();
+
+			marker = new google.maps.Marker
+				map: map,
+				draggable: true,
+				position: latlng,
+				title:"Si el domicilio que desea agendar no es este, por favor mueva este marcador a la posición correcta."
+
+			google.maps.event.addListener marker, 'dragend', ->
+				geocoder.geocode {'latLng': marker.getPosition()}, (results, status)->
+					if (status == google.maps.GeocoderStatus.OK) 
+						if (results[0]) 
+							latEl.val(marker.getPosition().lat());
+							lngEl.val(marker.getPosition().lng());
+							$(addressEl).val results[0]['formatted_address']
+							ajForm.updateAddressLocations section, results[0]['address_components']
+			
+			$(el).closest('section[data-name="address"]').find 'textarea[name$="[address]"], input[name$="[country]"], input[name$="[region]"], input[name$="[city]"]'
+			.bind 'change', (e)->
+				term = ''
+				if addressEl.val()
+					term += ' '+addressEl.val() 
+				else
+					term += ' '+countryEl.val() if countryEl.val()
+					term += ' '+regionEl.val() if regionEl.val()
+					term += ' '+cityEl.val() if cityEl.val()
+				
+				geocoder.geocode {'address': term }, (results, status)->
+					if results? and results.length > 0 
+						latlong= results[0]['geometry']['location']
+						latEl.val(latlong['k']);
+						lngEl.val(latlong['D']);
+						location = new google.maps.LatLng(latlong['k'], latlong['D']);
+						marker.setPosition(location);
+						map.setCenter(location);
+						ajForm.updateAddressLocations section, results[0]['address_components']
+						
+	ajForm.updateAddressLocations =(section,addressComponents)->
+		
+		countryEl	= section.find 'input[name$="[country]"]'
+		regionEl	= section.find 'input[name$="[region]"]'
+		cityEl		= section.find 'input[name$="[city]"]'
+		postcodeEl	= section.find 'input[name$="[postcode]"]'
+
+		countryEl.val ''
+		regionEl.val ''
+		postcodeEl.val ''
+		cityEl.val ''
+
+		_.each addressComponents, (addr)->
+			countryEl.val	addr.long_name if 'country' in addr.types
+			regionEl.val	addr.long_name if 'administrative_area_level_1' in addr.types
+			regionEl.val	addr.long_name if not regionEl.val() and 'administrative_area_level_2' in addr.types
+			cityEl.val		addr.long_name if 'postal_town' in addr.types
+			postcodeEl.val	addr.long_name if 'postal_code' in addr.types
