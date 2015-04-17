@@ -1,16 +1,16 @@
 jQuery(document).ready ($)->
 
-	window.WP_API_NONCE = ''
+	# window.WP_API_NONCE = ''
 
-	$(@).on 'aj:form:initialized', (event, data)->
-		console.log 'aj:form:initialized'
+	# $(@).on 'aj:form:initialized', (event, data)->
+	# 	console.log 'aj:form:initialized'
 
-	$(@).on 'aj:form:section:added', (event, data)->
-		console.log 'aj:form:section:added'
+	# $(@).on 'aj:form:section:added', (event, data)->
+	# 	console.log 'aj:form:section:added'
 
 	$(@).on 'aj:form:submitted', (event, data)->
 		console.log 'aj:form:submitted'
-		console.log data
+		console.log JSON.stringify data
 
 	# $(@).on 'aj:form:ajax:before:submit', (event, data)->
 	# 	console.log 'aj:form:ajax:before:submit'
@@ -35,7 +35,9 @@ jQuery(document).ready ($)->
 	formbuilderOptions = 
 		columns : 2
 		submitUrl: '' 
-		nav:true
+		# nav:true
+		mode: 'view'
+		# displayEmpty: false #True by default
 		fields:					
 			role: 
 				type	: 'dropdown'
@@ -44,7 +46,8 @@ jQuery(document).ready ($)->
 					{value: 'plc', label: 'Private Limited Company'}
 					]
 				default: 'plc'
-				# validation: required: true
+				validation: required: true
+				link: url: 'http://www.google.com/', openNew: true #True by default
 
 			role1: 
 				type: 'dropdown'
@@ -60,19 +63,19 @@ jQuery(document).ready ($)->
 				fields:
 					textarea:
 						type: 'textarea'
-						attributes: ['disabled']
+						# attributes: ['disabled']
 
 					random_label:
 						type: 'label'
-						# html: 'Some random label' #Plain text
-						html: '<p><b>Some random text</b></p>' #Html
+						html: 'Some random label' #Plain text
+						# html: '<p><b>Some random text</b></p>' #Html
 
 					hidden_field:
 						type: 'hidden'
 
-					do_something:
-						type: 'button'
-						triggerClick: '$on:do:something'
+					# do_something:
+					# 	type: 'button'
+					# 	triggerClick: '$on:do:something'
 
 					dob:
 						type: 'date'
@@ -134,6 +137,7 @@ jQuery(document).ready ($)->
 				type	: 'dropdown'
 				options : ['pvt_individual','partnership','sole_trader','plc']
 				selectLabel: 'Select the business type'
+				link: url: 'http://www.google.com/'
 
 			pvt_individual:
 				type: 'section',
@@ -147,6 +151,10 @@ jQuery(document).ready ($)->
 						validation: type: 'email'
 
 					phone		: type	: 'textbox'
+					company:
+						type: 'dropdown'
+						options: ['live', 'dead']
+						default: 'dead'
 
 
 			partnership:
@@ -179,6 +187,10 @@ jQuery(document).ready ($)->
 							buy_items:
 								type: 'multiselect_dropdown'
 								options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
+							company:
+								type: 'dropdown'
+								options: ['live', 'dead']
+								default: 'dead'
 
 			sole_trader:
 				columns: 3
@@ -206,8 +218,14 @@ jQuery(document).ready ($)->
 							phone		: type	: 'textbox'
 
 				
-			additional_info: 
-				type	: 'richtext'
-				attributes: ['disabled']
-				
-	$.AJFormEngine $('.form-div'), formbuilderOptions	
+			# additional_info: 
+			# 	type	: 'richtext'
+			# 	attributes: ['disabled']
+	
+	# serializedData = {"role":"pvt_individual","role1":"a","buy_items":null,"personal_details":{"textarea":"Some text data","hidden_field":"","dob":"2015-04-16","text1":"Random text","status":""},"other_details":{"primary_advisor":""},"business_type":"pvt_individual","pvt_individual":{"first_name":"Deepak","last_name":"Prabhudesai","email":"deepak@ajency.in","phone":"654635644","company":"live"}}
+	# serializedData = {"role":"pvt_individual","role1":"a","buy_items":null,"personal_details":{"textarea":"some text ","hidden_field":"","dob":"2015-04-02","text1":"Some randrom text","status":""},"other_details":{"primary_advisor":""},"business_type":"partnership","partnership":{"first_name":"wdwdwd","last_name":"wdwdwd","business_name":"wdwdwdw","email":"deepak@ajency.in","phone":"242424","status":"","partner":{"akJp7":{"first_name":"wdewdw","last_name":"wdwdw","business_name":"wdwdw","email":"deepak@ajency.in","phone":"223232","places":"","start_date":"2015-03-16","buy_items":null,"company":"live"}}}}
+	serializedData = {"role":"pvt_individual","role1":"a","buy_items":null,"personal_details":{"textarea":"some text ","hidden_field":"","dob":"2015-04-16","text1":"Some randrom text","status":""},"other_details":{"primary_advisor":""},"business_type":"partnership","partnership":{"first_name":"wdwdwd","last_name":"wdwdwd","business_name":"wdwdwdw","email":"deepak@ajency.in","phone":"242424","status":"","partner":{"akJp7":{"first_name":"wdewdw","last_name":"wdwdw","business_name":"wdwdw","email":"deepak@ajency.in","phone":"223232","places":"","start_date":"2015-04-16","buy_items":null,"company":"live"},"357aX":{"first_name":"defde","last_name":"efefe","business_name":"efef","email":"dede@kefe.in","phone":"343434","places":"","start_date":"","buy_items":null,"company":"dead"}}}}
+	$.AJFormEngine $('.form-div'), formbuilderOptions, serializedData
+
+
+

@@ -54,16 +54,20 @@ jQuery(document).ready ($)->
 	
 	
 	ajForm = {}
+	window.ajForm = ajForm if window.ionic
 	
 	$.AJFormEngine =(element, opts, data=[])->
-		
+
+		console.log data
 		
 		ajForm.autoSuggest = []
 		ajForm.formData= data
 		ajForm.options = opts
 		form = '<form class="ajForm">'
+		form += '<div class="list list-inset">' #Ionic css | Ignored on web
 		form += ajForm.generateFields opts.fields, opts.columns
-		form += ajForm.get_submit_button()
+		form += ajForm.get_submit_button() if ajForm.options.mode isnt 'view'
+		form += '</div>'
 		form += '</form>'
 		
 		ajForm.appendForm form, element
@@ -74,6 +78,10 @@ jQuery(document).ready ($)->
 		
 		ajForm.fillFormSections data if not _.isEmpty data
 		ajForm.bindConditions()
+
+		if ajForm.options.mode is 'view'
+			ajForm.showConditions()
+			ajForm.hideEmptyFieldsInVieeMode()
 		
 		ajForm.triggerFieldPlugins element
 		
@@ -119,15 +127,20 @@ jQuery(document).ready ($)->
 				hideElement = if field.conditionals then ' style="display:none" ' else ''
 				form += "<div class='ajForm-"+name+" col-md-#{columnClass}' "+hideElement+">"
 				
-				fieldFunction= ajForm['get_'+field.type]
+				mode = ajForm.options.mode
+				if mode is 'view'
+					form += ajForm.generateFieldsInViewMode field, name, secondaryName
+				else
+					fieldFunction = ajForm['get_'+field.type]
+					
+					if typeof fieldFunction is 'function'
+						field.label = s.humanize name if field.label isnt false and not field.label
+						field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
+						form += '<div class="form-group fly-group">'
+						form += '<label class="fly-label classic">'+field.label+'</label>' if field.label and !_.contains(['hidden', 'button'], field.type)
+						form += fieldFunction field,name,secondaryName
+						form += '</div>'
 				
-				if typeof fieldFunction is 'function'
-					field.label = s.humanize name if field.label isnt false and not field.label
-					field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
-					form += '<div class="form-group fly-group">'
-					form += '<label class="fly-label classic">'+field.label+'</label>' if field.label and !_.contains(['hidden', 'button'], field.type)
-					form += fieldFunction field,name,secondaryName
-					form += '</div>'
 				form += '</div>'
 
 				#if column count is reached, end the row and reset column count
@@ -166,7 +179,7 @@ jQuery(document).ready ($)->
 		html += ajForm.generateFields section.fields, columns, secondaryName
 		html += '</div></div></div></section>'
 		
-		if section.type is 'repeatable_section'
+		if section.type is 'repeatable_section' and ajForm.options.mode isnt 'view'
 			html +='<div class="form-group clearfix">
 						<a data-section="'+sectionName+'" class="add-section btn btn-default btn-sm pull-right m-t-10"><i class="fa fa-plus"></i> Add</a>
 					</div>'
@@ -219,11 +232,12 @@ jQuery(document).ready ($)->
 			alert "Cannot delete"
 	
 	ajForm.addDeleteSectionLink =(sectionEl)->
-		sectionEl.append '<div class="form-group clearfix">
-				<a class="remove-section btn btn-link pull-right">Delete</a>
-			</div>'
-		
-		$(sectionEl).find('a.remove-section').bind 'click', ajForm.removeSection
+		if ajForm.options.mode isnt 'view'
+			sectionEl.append '<div class="form-group clearfix">
+					<a class="remove-section btn btn-link pull-right">Delete</a>
+				</div>'
+			
+			$(sectionEl).find('a.remove-section').bind 'click', ajForm.removeSection
 	
 	ajForm.get_submit_button=->
 		'<div class="row">
@@ -514,9 +528,9 @@ jQuery(document).ready ($)->
 		conditions = ajForm.getConditions ajForm.options.fields
 		
 		triggers = _.map conditions, (c)-> _.keys(c)
-		triggers = _.unique _.flatten triggers
+		ajForm.triggers = _.unique _.flatten triggers
 		
-		_.each triggers, (t)->
+		_.each ajForm.triggers, (t)->
 			element = ajForm.findFieldElement t
 			$(element).bind 'change', ajForm.triggerConditional
 	
@@ -540,11 +554,14 @@ jQuery(document).ready ($)->
 			ajForm.getAffectableFields field.fields,triggerName,conditionals if field.fields 
 		conditionals
 	
-	ajForm.triggerConditional=(evt)->
-		
-		triggerValue= $(evt.target).val()
-		triggerName = $(evt.target).attr 'name'
-		
+	ajForm.triggerConditional=(evt, triggerItem)->
+		if evt
+			triggerValue= $(evt.target).val()
+			triggerName = $(evt.target).attr 'name'
+		else
+			triggerValue= triggerItem.value
+			triggerName = triggerItem.name
+
 		affectableFields = ajForm.getAffectableFields ajForm.options.fields,triggerName
 		
 		#affectableFields are fields that get affected due to this change
@@ -565,12 +582,16 @@ jQuery(document).ready ($)->
 			matchCount		= 0
 			success = false
 			_.each fieldConditions, (c,index)->
-				
+
 				ele = ajForm.findFieldElement index
 				eleVal = ele.val()
 				
+				mode = ajForm.options.mode
+				eleVal = ajForm.getFormDataItem(index) if mode is 'view'
+				
 				#get radio button's selected value
-				eleVal = $("input[name="+ele.attr('name')+"]:checked").val() if ele.attr('type') is 'radio' 
+				if mode isnt 'view'
+					eleVal = $("input[name="+ele.attr('name')+"]:checked").val() if ele.attr('type') is 'radio' 
 				#TODO: handle checkboxes conditional
 				
 				switch (c.operator)
@@ -591,7 +612,6 @@ jQuery(document).ready ($)->
 			
 			if success
 				if fieldDisplay is 'show' then fieldDivEl.show() else fieldDivEl.hide()
-				
 			else
 				if fieldDisplay is 'show' then fieldDivEl.hide() else fieldDivEl.show()
 				
@@ -648,11 +668,12 @@ jQuery(document).ready ($)->
 			dataRecords = ajForm.getFormDataItem dataName
 			
 			#show an empty section if no data entered for that section
-			dataRecords= [{}] if _.isEmpty dataRecords
+			dataRecords = [{}] if _.isEmpty dataRecords
 			_.each dataRecords, (record, key)=>
 				sectionEle = $(section).first().clone()
-				sectionEle.find('input, textarea, select').val ''
-				sectionEle.find('input, textarea, select').each (index, ele)=>
+
+				sectionEle.find('input, textarea, select, b.ajFormBold').val ''
+				sectionEle.find('input, textarea, select, b.ajFormBold').each (index, ele)=>
 					field_name = $(ele).attr 'name'
 					name =s.ltrim field_name, dataName
 					array = name.split '['
@@ -660,13 +681,24 @@ jQuery(document).ready ($)->
 						nameToReplace = array[0].split(']').shift()
 					else
 						nameToReplace = array[1].split(']').shift()
-					if nameToReplace 
+					
+					if nameToReplace
+						newSectionID = sectionEle.attr('id').replace nameToReplace, key
+						sectionEle.attr 'id', newSectionID
+
 						completeName = field_name.replace nameToReplace, key
 						$(ele).attr 'name', completeName
 						property = name.split('[').pop().slice(0,-1)
 						$(ele).val record[property]
 					else
 						$(ele).val key
+
+					if ajForm.options.mode is 'view'
+						field = JSON.parse $(ele).attr('field')
+						name = $(ele).attr 'el-name'
+						fieldValue = ajForm.getFieldValueForViewMode field, name, newSectionID
+						fieldText = ajForm.getFieldTextForViewMode field, fieldValue
+						$(ele).text fieldText
 
 				ajForm.addDeleteSectionLink sectionEle
 
@@ -800,3 +832,78 @@ jQuery(document).ready ($)->
 			regionEl.val	addr.long_name if not regionEl.val() and 'administrative_area_level_2' in addr.types
 			cityEl.val		addr.long_name if 'postal_town' in addr.types
 			postcodeEl.val	addr.long_name if 'postal_code' in addr.types
+
+	ajForm.showConditions = ->
+		_.each ajForm.triggers, (trigger)->
+			item = name: trigger, value: ajForm.getFormDataItem(trigger)
+			ajForm.triggerConditional(null, item)
+
+	ajForm.getFieldValueForViewMode = (field, name, secondaryName)->
+		if secondaryName
+			fieldValue = ajForm.getFormDataItem secondaryName
+			fieldValue = fieldValue[name] if fieldValue
+		else 
+			fieldValue = ajForm.getFormDataItem name
+		fieldValue
+
+	ajForm.getFieldTextForViewMode = (field, fieldValue)->
+		labelValue = ''
+
+		switch field.type
+			when 'dropdown'
+				if field.options[0].value
+					filteredOption = _.filter field.options, (opt) -> opt.value is fieldValue
+					labelValue = filteredOption[0].label
+				else labelValue = s.humanize fieldValue
+
+			else
+				#When textbox, textarea, date, label
+				labelValue = fieldValue
+
+		labelValue
+
+	ajForm.generateFieldsInViewMode = (field, name, secondaryName)->
+		elFormName = if secondaryName then "#{secondaryName}[#{name}]" else name
+		field.label = s.humanize name if field.label isnt false and not field.label
+		fieldStr = JSON.stringify field
+
+		fieldValue = ajForm.getFieldValueForViewMode field, name, secondaryName
+		fieldText = ajForm.getFieldTextForViewMode field, fieldValue
+
+		if _.isUndefined(fieldValue) or _.isNull(fieldValue)
+			fieldText = ''
+
+		form = '<div class="form-group fly-group">'
+		form += '<label class="fly-label classic">'+field.label+': '
+		boldText = "<b name='"+elFormName+"' el-name='"+name+"' field='"+fieldStr+"' class='ajFormBold'>"+fieldText+"</b>"
+
+		if field.link 
+			openNew = field.link.openNew
+			openNew = true if _.isUndefined openNew
+			target = if openNew then '_blank' else '_self'
+			form += "<a target='"+target+"' href='"+field.link.url+"'>"+boldText+"</a>"
+		else 
+			form += "<label>"+boldText+"</label>"
+
+		form += '</label>'
+		form += '</div>'
+
+	ajForm.hideEmptyFieldsInVieeMode = ->
+		displayEmpty = ajForm.options.displayEmpty
+		displayEmpty = true if _.isUndefined displayEmpty
+
+		if !displayEmpty
+			boldElements = $(ajForm.formElement).find 'b.ajFormBold'
+			_.each boldElements, (el)->
+				if $(el).text() is ''
+					parent = $(el).closest '.row'
+					childElements = parent.find 'b.ajFormBold'
+
+					emptyRow = true
+					_.each childElements, (child)->
+						emptyRow = false if $(child).text() isnt ''
+
+					if emptyRow then parent.hide()
+					else $(el).closest('.col-md-6').hide()
+
+
