@@ -36,29 +36,26 @@ jQuery(document).ready ($)->
 		});
 		
 		var onScroll = function(event) {
-            var scrollPos = $(document).scrollTop();
-            $('.ajFormNav .nav li').each(function () {
-                var currLink = $(this);
+			var scrollPos = $(document).scrollTop();
+			$('.ajFormNav .nav li').each(function () {
+				var currLink = $(this);
 				target = currLink.find('a').attr("section-id")
 				var refElement = $("section[id='"+target+"']");
-                if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
-                    $('.nav li').removeClass("active");
-                    currLink.addClass("active");
-                }
-                else{
-                    currLink.removeClass("active");
-                }
-            });
+				if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+					$('.nav li').removeClass("active");
+					currLink.addClass("active");
+				}
+				else{
+					currLink.removeClass("active");
+				}
+			});
 			}
-        }`
-	
+		}`
 	
 	ajForm = {}
 	window.ajForm = ajForm if window.ionic
 	
 	$.AJFormEngine =(element, opts, data=[])->
-
-		console.log data
 		
 		ajForm.autoSuggest = []
 		ajForm.formData= data
@@ -81,7 +78,7 @@ jQuery(document).ready ($)->
 
 		if ajForm.options.mode is 'view'
 			ajForm.showConditions()
-			ajForm.hideEmptyFieldsInVieeMode()
+			ajForm.hideEmptyFieldsInViewMode()
 		
 		ajForm.triggerFieldPlugins element
 		
@@ -95,7 +92,7 @@ jQuery(document).ready ($)->
 		$(ajForm.formElement.find('input,select')).trigger 'change' if not _.isEmpty data
 		
 		ajForm.addSideNav(element) if ajForm.options.nav
-		$('body').scrollspy target: '.bs-docs-sidebar'
+		$('body').scrollspy(target: '.bs-docs-sidebar') if not window.ionic
 		window.scrollToDivScript()
 		form
 	
@@ -316,7 +313,7 @@ jQuery(document).ready ($)->
 		html = '<select '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="form-control" multiple>'
 		_.each field.options, (option)=>
 			opt = ajForm.formatOptions option
-			html += '<option value="'+opt.value+'">'+opt.label+'</option>'
+			html += '<option value="'+opt.value+'" '+ajForm.preSelected(field, option)+'>'+opt.label+'</option>'
 		html += '</select>'
 
 	ajForm.get_hidden = (field,name,secondaryName)->
@@ -376,17 +373,22 @@ jQuery(document).ready ($)->
 
 	ajForm.preSelected = (field, option)->
 		selected = ''
+		optionDefaults = 
+			multiple : ->
+				if (_.isObject(option) and _.contains(field.default, option.value)) or _.contains(field.default, option) then true else false
+			single : ->
+				if (_.isObject(option) and field.default is option.value) or (field.default is option) then true else false
+
 		if _.has(field, 'default')
 			switch field.type
 				when 'dropdown'
-					if (_.isObject(option) and field.default is option.value) or (field.default is option)
-						selected = 'selected="selected"'
+					if optionDefaults.single() then selected = 'selected="selected"'
+				when 'multiselect_dropdown'
+					if optionDefaults.multiple() then selected = 'selected="selected"'
 				when 'radio'
-					if (_.isObject(option) and field.default is option.value) or (field.default is option)
-						selected = 'checked="checked"'
+					if optionDefaults.single() then selected = 'checked="checked"'
 				when 'checkbox'
-					if (_.isObject(option) and _.contains(field.default, option.value)) or _.contains(field.default, option)
-						selected = 'checked="checked"'
+					if optionDefaults.multiple() then selected = 'checked="checked"'
 
 		selected
 
@@ -426,8 +428,8 @@ jQuery(document).ready ($)->
 					data= id: opt.value, name: opt.label
 					
 			fieldValue = ajForm.getFormDataItem fieldName
-			
-			preselected =[]
+
+			preselected = []
 			if fieldValue and _.size(fieldValue)>0
 				preselected = [fieldValue.id] if fieldValue.id? 
 			
@@ -436,6 +438,9 @@ jQuery(document).ready ($)->
 			if _.isEmpty(preselected) and not _.isEmpty _.compact fieldValue
 				preselected = _.pluck fieldValue, 'id' 
 				preselected = fieldValue if _.isEmpty _.compact preselected
+
+			#TODO: Remove below line
+			preselected = eval preselected
 			
 			magicSuggest = $(el).magicSuggest
 				maxSelection	: if item.maxSelection then item.maxSelection else false
@@ -447,7 +452,8 @@ jQuery(document).ready ($)->
 					
 			$(magicSuggest).on 'selectionchange', (e,m)->
 				$(ajForm.formElement).find "input[name='#{fieldName}']"
-				.val JSON.stringify this.getValue()
+				# .val JSON.stringify this.getValue()
+				.val JSON.stringify this.getSelection()
 					
 			ajForm.autoSuggest.push field: fieldName, magicSuggest: magicSuggest
 					
@@ -614,6 +620,8 @@ jQuery(document).ready ($)->
 				if fieldDisplay is 'show' then fieldDivEl.show() else fieldDivEl.hide()
 			else
 				if fieldDisplay is 'show' then fieldDivEl.hide() else fieldDivEl.show()
+
+			ajForm.formElement.trigger "aj:conditional:triggered"
 				
 				
 	ajForm.findFieldElement=(name)->
@@ -623,7 +631,6 @@ jQuery(document).ready ($)->
 	
 	#get the option item from intialization options
 	ajForm.getFieldOption=(name)->
-	
 		if s.contains name, '['
 			fieldPathArr = name.split '['
 			item = ajForm.options
@@ -856,6 +863,22 @@ jQuery(document).ready ($)->
 					labelValue = filteredOption[0].label
 				else labelValue = s.humanize fieldValue
 
+			when 'multiselect_dropdown'
+				tempArr = []
+				_.each fieldValue, (val)->
+					if field.options[0].value
+						filteredOption = _.filter field.options, (opt) -> opt.value is val
+						tempArr.push filteredOption[0].label
+					else tempArr.push s.humanize(val)
+				labelValue = tempArr.join ', '
+
+			when 'autosuggest'
+				fieldValue = eval fieldValue
+				if !_.isUndefined(fieldValue) and !_.isEmpty(fieldValue)
+					if fieldValue[0].id
+						ids = _.pluck fieldValue, 'name'
+						labelValue = ids.join ', '
+					else labelValue = fieldValue.join ', '
 			else
 				#When textbox, textarea, date, label
 				labelValue = fieldValue
@@ -888,7 +911,7 @@ jQuery(document).ready ($)->
 		form += '</label>'
 		form += '</div>'
 
-	ajForm.hideEmptyFieldsInVieeMode = ->
+	ajForm.hideEmptyFieldsInViewMode = ->
 		displayEmpty = ajForm.options.displayEmpty
 		displayEmpty = true if _.isUndefined displayEmpty
 
@@ -905,5 +928,4 @@ jQuery(document).ready ($)->
 
 					if emptyRow then parent.hide()
 					else $(el).closest('.col-md-6').hide()
-
 

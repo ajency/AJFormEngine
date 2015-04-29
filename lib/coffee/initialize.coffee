@@ -1,6 +1,6 @@
 jQuery(document).ready ($)->
 
-	# window.WP_API_NONCE = ''
+	window.WP_API_NONCE = ''
 
 	# $(@).on 'aj:form:initialized', (event, data)->
 	# 	console.log 'aj:form:initialized'
@@ -10,6 +10,7 @@ jQuery(document).ready ($)->
 
 	$(@).on 'aj:form:submitted', (event, data)->
 		console.log 'aj:form:submitted'
+		console.log data
 		console.log JSON.stringify data
 
 	# $(@).on 'aj:form:ajax:before:submit', (event, data)->
@@ -26,7 +27,7 @@ jQuery(document).ready ($)->
 	# 			console.log error
 
 
-	#Button event
+	#Button event     
 	$(@).on '$on:do:something', (event, data)->
 		console.log '$on:do:something'
 
@@ -36,7 +37,7 @@ jQuery(document).ready ($)->
 		columns : 2
 		submitUrl: '' 
 		# nav:true
-		mode: 'view'
+		# mode: 'view'
 		# displayEmpty: false #True by default
 		fields:					
 			role: 
@@ -54,9 +55,20 @@ jQuery(document).ready ($)->
 				options: ['a', 'b']
 				default: 'b'
 
+			# buy_items:
+			# 	type: 'multiselect_dropdown'
+			# 	# options	: 
+			# 	# 	[{value: 'pvt_individual', label: 'Private Individual'}
+			# 	# 	{value: 'plc', label: 'Private Limited Company'}
+			# 	# 	]
+			# 	# default: ['plc']
+			# 	options : ['private individual', 'private limited company']
+			# 	default: ['private limited company']
+
 			buy_items:
 				type: 'multiselect_dropdown'
 				options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
+				default: ['mozarella']
 
 			personal_details:
 				type: 'section'
@@ -112,26 +124,26 @@ jQuery(document).ready ($)->
 						validation: required: true
 						options : ['Network Manager','Firm Principal','Firm Management','Network Firm','Simply Firm','Phoenix','Network Manager2']
 
-				cities: 
-					type	: 'autosuggest'
-					optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+					cities: 
+						type	: 'autosuggest'
+						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
 
-				gender:
-					type	: 'radio'
-					options : ['male','female']
-					default: 'male'
+					gender:
+						type	: 'radio'
+						options : ['male', 'female', 'bot']
+						default: 'bot'
 
-				mood:
-					type: 'checkbox'
-					options: ['happy', 'sad', 'angry', 'pissed', 'mad']
-					# options	: 
-					# 	[{value: 'happy', label: 'Happy'}
-					# 	{value: 'sad', label: 'Sad'}
-					# 	{value: 'angry', label: 'Angry'}
-					# 	{value: 'pissed', label: 'Pissed'}
-					# 	{value: 'mad', label: 'Mad'}
-					# 	]
-					default: ['angry', 'sad', 'mad']
+					mood:
+						type: 'checkbox'
+						options: ['happy', 'sad', 'angry', 'pissed', 'mad']
+						# options	: 
+						# 	[{value: 'happy', label: 'Happy'}
+						# 	{value: 'sad', label: 'Sad'}
+						# 	{value: 'angry', label: 'Angry'}
+						# 	{value: 'pissed', label: 'Pissed'}
+						# 	{value: 'mad', label: 'Mad'}
+						# 	]
+						default: ['angry', 'sad', 'mad']
 
 			business_type:
 				type	: 'dropdown'
@@ -187,6 +199,7 @@ jQuery(document).ready ($)->
 							buy_items:
 								type: 'multiselect_dropdown'
 								options: ['cheese', 'tomatoes', 'mozarella', 'mushrooms']
+								default: ['mozarella']
 							company:
 								type: 'dropdown'
 								options: ['live', 'dead']
@@ -222,10 +235,14 @@ jQuery(document).ready ($)->
 			# 	type	: 'richtext'
 			# 	attributes: ['disabled']
 	
-	# serializedData = {"role":"pvt_individual","role1":"a","buy_items":null,"personal_details":{"textarea":"Some text data","hidden_field":"","dob":"2015-04-16","text1":"Random text","status":""},"other_details":{"primary_advisor":""},"business_type":"pvt_individual","pvt_individual":{"first_name":"Deepak","last_name":"Prabhudesai","email":"deepak@ajency.in","phone":"654635644","company":"live"}}
-	# serializedData = {"role":"pvt_individual","role1":"a","buy_items":null,"personal_details":{"textarea":"some text ","hidden_field":"","dob":"2015-04-02","text1":"Some randrom text","status":""},"other_details":{"primary_advisor":""},"business_type":"partnership","partnership":{"first_name":"wdwdwd","last_name":"wdwdwd","business_name":"wdwdwdw","email":"deepak@ajency.in","phone":"242424","status":"","partner":{"akJp7":{"first_name":"wdewdw","last_name":"wdwdw","business_name":"wdwdw","email":"deepak@ajency.in","phone":"223232","places":"","start_date":"2015-03-16","buy_items":null,"company":"live"}}}}
-	serializedData = {"role":"pvt_individual","role1":"a","buy_items":null,"personal_details":{"textarea":"some text ","hidden_field":"","dob":"2015-04-16","text1":"Some randrom text","status":""},"other_details":{"primary_advisor":""},"business_type":"partnership","partnership":{"first_name":"wdwdwd","last_name":"wdwdwd","business_name":"wdwdwdw","email":"deepak@ajency.in","phone":"242424","status":"","partner":{"akJp7":{"first_name":"wdewdw","last_name":"wdwdw","business_name":"wdwdw","email":"deepak@ajency.in","phone":"223232","places":"","start_date":"2015-04-16","buy_items":null,"company":"live"},"357aX":{"first_name":"defde","last_name":"efefe","business_name":"efef","email":"dede@kefe.in","phone":"343434","places":"","start_date":"","buy_items":null,"company":"dead"}}}}
-	$.AJFormEngine $('.form-div'), formbuilderOptions, serializedData
+	
+	
+	# serializedData = {"role":"plc","role1":"b","buy_items":["pvt_individual"],"personal_details":{"textarea":"Hello, this is a textarea","hidden_field":"","dob":"2015-04-20","text1":"This is text 1","status":"[{\"id\":\"suspended\",\"name\":\"Suspended\"}]"},"other_details":{"primary_advisor":"[{\"id\":\"Firm Principal\",\"name\":\"Firm Principal\"},{\"id\":\"Network Firm\",\"name\":\"Network Firm\"}]","cities":"[{\"id\":1,\"name\":\"New York\"},{\"id\":2,\"name\":\"Gotham\"}]","gender":"female","mood":true},"business_type":"partnership","partnership":{"first_name":"Deepak","last_name":"Prabhudesai","business_name":"test business","email":"deepak@ajency.in","phone":"54546664656464","status":"[\"suspended1\"]","partner":{"nkBjD":{"first_name":"Again Deepak","last_name":"Again Prabhudesai","business_name":"test business","email":"deepak@ajency.in","phone":"894564666","places":"","start_date":"2015-04-20","buy_items":["tomatoes","mushrooms"],"company":"dead"}}}}
+	serializedData = {"role":"plc","role1":"b","buy_items":["tomatoes","mozarella"],"personal_details":{"textarea":"","hidden_field":"","dob":"","text1":"","status":""},"other_details":{"primary_advisor":"","cities":"","gender":"bot","mood":true},"business_type":"partnership","partnership":{"first_name":"","last_name":"","business_name":"","email":"","phone":"","status":"","partner":{"0":{"first_name":"","last_name":"","business_name":"","email":"","phone":"","places":"","start_date":"","buy_items":["tomatoes","mozarella","mushrooms"],"company":""}}}}
+	
+	console.log serializedData = eval(serializedData)
+
+	$.AJFormEngine $('.form-div'), formbuilderOptions , serializedData
 
 
 
