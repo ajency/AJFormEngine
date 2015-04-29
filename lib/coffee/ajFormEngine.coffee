@@ -63,7 +63,12 @@ jQuery(document).ready ($)->
 		form = '<form class="ajForm">'
 		form += '<div class="list list-inset">' #Ionic css | Ignored on web
 		form += ajForm.generateFields opts.fields, opts.columns
-		form += ajForm.get_submit_button() if ajForm.options.mode isnt 'view'
+		
+		if ajForm.options.mode isnt 'view'
+			if opts.cancelButton and opts.cancelButton.display
+				form += ajForm.get_submit__plus_cancel_button()
+			else form += ajForm.get_submit_button() 
+		
 		form += '</div>'
 		form += '</form>'
 		
@@ -240,6 +245,18 @@ jQuery(document).ready ($)->
 		'<div class="row">
 			<div class="col-md-12">
 				<input type="submit" value="Save" class="btn btn-primary" />
+			</div>
+		</div>'
+
+	ajForm.get_submit__plus_cancel_button=->
+		opts = ajForm.options
+		href = if opts.cancelButton.link then "href='#{opts.cancelButton.link}'" else ''
+		'<div class="row">
+			<div class="col-md-1">
+				<input type="submit" value="Save" class="btn btn-primary" />
+			</div>
+			<div class="col-md-1 cancel">
+				<a '+href+' class="btn btn-primary">Cancel</a>
 			</div>
 		</div>'
 	

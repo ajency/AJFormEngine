@@ -39,6 +39,9 @@ jQuery(document).ready ($)->
 		# nav:true
 		# mode: 'view'
 		# displayEmpty: false #True by default
+		cancelButton: 
+			display: true
+			link: 'http://www.google.com/'
 		fields:					
 			role: 
 				type	: 'dropdown'
