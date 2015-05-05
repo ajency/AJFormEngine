@@ -1,7 +1,5 @@
 jQuery(document).ready ($)->
 
-	window.WP_API_NONCE = ''
-
 	# $(@).on 'aj:form:initialized', (event, data)->
 	# 	console.log 'aj:form:initialized'
 
@@ -129,7 +127,8 @@ jQuery(document).ready ($)->
 
 					cities: 
 						type	: 'autosuggest'
-						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+						# optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+						optionsUrl: 'http://awmphoenixtest.com/api/v1/phoenix-users?filters[autosuggest]=1&filters[capability]=advisor'
 
 					gender:
 						type	: 'radio'
@@ -245,7 +244,7 @@ jQuery(document).ready ($)->
 	
 	console.log serializedData = eval(serializedData)
 
-	$.AJFormEngine $('.form-div'), formbuilderOptions , serializedData
+	$.AJFormEngine $('.form-div'), formbuilderOptions #, serializedData
 
 
 

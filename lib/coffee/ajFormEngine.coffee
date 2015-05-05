@@ -229,7 +229,8 @@ jQuery(document).ready ($)->
 		sectionName = $(evt.target).closest('section').attr 'data-name'
 		
 		if $("section[data-name='#{sectionName}']:visible").length>1
-			$(evt.target).closest('section').fadeOut 'fast'
+			$(evt.target).closest('section').fadeOut 'fast', ->
+				$(ajForm.formElement).trigger "aj:form:section:removed"
 		else
 			alert "Cannot delete"
 	
@@ -465,7 +466,7 @@ jQuery(document).ready ($)->
 				value			: preselected if not _.isEmpty _.compact preselected
 				ajaxConfig		: 
 					method: 'GET'
-					headers: 'X-WP-Nonce': WP_API_NONCE if WP_API_NONCE
+					headers: 'X-WP-Nonce': WP_API_NONCE if window.WP_API_NONCE
 					
 			$(magicSuggest).on 'selectionchange', (e,m)->
 				$(ajForm.formElement).find "input[name='#{fieldName}']"
