@@ -137,10 +137,13 @@ jQuery(document).ready ($)->
 					
 					if typeof fieldFunction is 'function'
 						field.label = s.humanize name if field.label isnt false and not field.label
-						field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
+						# field.label += '<i class="fa fa-asterisk"></i>' if field.validation and field.validation.required
 						form += '<div class="form-group fly-group">'
 						form += '<label class="fly-label classic">'+field.label+'</label>' if field.label and !_.contains(['hidden', 'button'], field.type)
 						form += fieldFunction field,name,secondaryName
+						form += "<ul class='parsley-errors-list parsley-err'>
+					                <li class='parsley-required text-left ms-hover'>This value is required</li>
+					            </ul>" if field.validation and field.validation.required
 						form += '</div>'
 				
 				form += '</div>'
@@ -519,6 +522,7 @@ jQuery(document).ready ($)->
 			
 	ajForm.handleFormSubmit=(e)->
 		e.preventDefault()
+		$(".parsley-err").hide()
 		form = $(e.target).closest 'form'
 		
 		validator = form.parsley 

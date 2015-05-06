@@ -2,21 +2,22 @@
 
 jQuery(document).ready ($)->
 
-	ajForm.get_submit_button=->
+	ajForm.get_submit_button = ->
 		'<div class="list list-inset">
 			<button class="button button-block btn-primary" type="submit">
 				Save
 			</button>
 		</div>'
 
-	ajForm.get_textbox=(field,name,secondaryName)->
+	ajForm.get_textbox = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		value = if field.value then field.value else ''
 		"<label class='item item-input'>
 			<input value='#{value}' type='text' #{ajForm.validations(field.validation)} #{ajForm.attributes(field.attributes)} class='form-control input-sm' name=#{name}>
 		</label>"
 
-	ajForm.get_dropdown=(field,name,secondaryName)->
+
+	ajForm.get_dropdown = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = '<label class="item item-input item-select">'
 		html += '<select '+ajForm.validations(field.validation)+' '+ajForm.attributes(field.attributes)+' name="'+name+'" class="form-control">'
@@ -28,7 +29,8 @@ jQuery(document).ready ($)->
 		html += '</select>'
 		html += '</label>'
 
-	ajForm.get_radio=(field,name,secondaryName)->
+
+	ajForm.get_radio = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = ''
 		_.each field.options, (option)->
@@ -40,7 +42,8 @@ jQuery(document).ready ($)->
 					</label>'
 		html
 
-	ajForm.get_checkbox=(field,name,secondaryName)->
+
+	ajForm.get_checkbox = (field,name,secondaryName)->
 		name = "#{secondaryName}[#{name}]" if secondaryName
 		html = ''
 		_.each field.options, (option)->
@@ -51,7 +54,21 @@ jQuery(document).ready ($)->
 					</label>'
 		html
 
-	ajForm.triggerFieldPlugins=(element)->
+
+	ajForm.addDatePicker=(element)->
+		dateElements = element.find 'input[type="date"]'
+		_.each dateElements, (el)->
+			dateObj = ajForm.getFieldOption el.name
+			min = max = undefined
+			if _.has(dateObj, 'min')
+				min = if dateObj.min is 'today' then new Date() else new Date(dateObj.min)
+			if _.has(dateObj, 'max') 
+				max = if dateObj.max is 'today'then new Date() else new Date(dateObj.max)
+			
+			$(el).attr 'min': min, 'max': max
+
+
+	ajForm.triggerFieldPlugins = (element)->
 		ajForm.addDatePicker element
 		ajForm.addAutoSuggest element
 		ajForm.setAutogrowTextHeight element

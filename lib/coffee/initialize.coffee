@@ -98,7 +98,7 @@ jQuery(document).ready ($)->
 
 					text1: 
 						type	: 'textbox'
-						# validation: required: true
+						validation: required: true
 
 					text2: 
 						type	: 'textbox'
@@ -127,8 +127,8 @@ jQuery(document).ready ($)->
 
 					cities: 
 						type	: 'autosuggest'
-						# optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
-						optionsUrl: 'http://awmphoenixtest.com/api/v1/phoenix-users?filters[autosuggest]=1&filters[capability]=advisor'
+						optionsUrl: 'http://nicolasbize.com/magicsuggest/get_cities.php'
+						# optionsUrl: 'http://awmphoenixtest.com/api/v1/phoenix-users?filters[autosuggest]=1&filters[capability]=advisor'
 
 					gender:
 						type	: 'radio'
